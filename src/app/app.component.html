@@ -123,4 +123,26 @@
       }
     </div>
   }
+
+  @if (basicDetails.subheadline) {
+    <div class="hero-subheadline">{{ basicDetails.subheadline | translate }}</div>
+  }
+
+  @if (basicDetails.resumeUrl) {
+    <div class="hero-resume">
+      <a
+        class="resume-button"
+        [href]="basicDetails.resumeUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Download resume"
+      >
+        <span class="resume-text">{{ 'Download Resume' | translate }}</span>
+        <span class="resume-arrow-wrapper" aria-hidden="true">
+          <span class="resume-arrow-static material-symbols-outlined">arrow_right_alt</span>
+          <span class="resume-arrow-moving material-symbols-outlined">arrow_right_alt</span>
+        </span>
+      </a>
+    </div>
+  }
 </main>

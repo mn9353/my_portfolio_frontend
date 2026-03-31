@@ -235,6 +235,124 @@
   align-items: center;
 }
 
+.hero-subheadline {
+  margin-top: 1rem;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: clamp(0.8rem, 0.7rem + 0.5vw, 1.05rem);
+  line-height: 1.35;
+  color: var(--subheadline-text-color);
+  max-width: min(90vw, 60rem);
+  text-align: center;
+
+  opacity: 0;
+  transform: translateY(14px);
+  animation: fadeUpIn 760ms ease forwards;
+  animation-delay: 400ms;
+}
+
+.hero-resume {
+  margin-top: 1rem;
+  
+  opacity: 0;
+  transform: translateY(14px);
+  animation: fadeUpIn 760ms ease forwards;
+  animation-delay: 560ms;
+}
+
+.resume-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #000, #222);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: clamp(0.85rem, 0.7rem + 0.5vw, 1rem);
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: transform 200ms ease, box-shadow 220ms ease, background 280ms ease;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.17);
+}
+
+.resume-text{
+  padding-left: 2rem;
+}
+
+.resume-button:hover,
+.resume-button:focus-visible {
+  /* keep the button in place while focusing on subtle visual style changes */
+  transform: none;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, rgba(34, 34, 34, 0.95), rgba(58, 58, 58, 0.95));
+  opacity: 0.98;
+  backdrop-filter: blur(1.2px);
+}
+
+.resume-arrow-wrapper {
+  position: relative;
+  width: 1.2rem;
+  height: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-right: 2rem;
+}
+
+.resume-arrow-static,
+.resume-arrow-moving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 1.25rem;
+}
+
+.resume-arrow-static {
+  color: var(--resume-arrow-static);
+  opacity: 0.95;
+}
+
+.resume-arrow-moving {
+  color: var(--resume-arrow-moving);
+  transform: translateX(0);
+  opacity: 0;
+  filter: blur(0.45px);
+  transition: none;
+}
+
+.resume-button:hover .resume-arrow-moving,
+.resume-button:focus-visible .resume-arrow-moving {
+  transform: translateX(3rem);
+  opacity: 0.65;
+  filter: blur(1px);
+  transition: transform 440ms ease, opacity 420ms ease, filter 420ms ease;
+}
+
+/* Keep the moving arrow hidden when not hovered/focused, without overriding the hover rule */
+.resume-button:not(:hover):not(:focus-visible) .resume-arrow-moving {
+  transform: translateX(0);
+  opacity: 0;
+  filter: blur(0.45px);
+  transition: none;
+}
+
+.resume-button{
+  background: var(--resume-download-button-bg);
+  color: var(--resume-download-button-text);
+  border: 6px solid var(--resume-download-button-border);
+}
+
+.resume-button:hover,
+.resume-button:focus-visible {
+  background: var(--resume-download-button-hover-bg);
+
+  color: var(--resume-download-button-hover-text);
+}
+
+
 .headline-line {
   display: block;
   min-height: 1.3em;
@@ -433,6 +551,17 @@
   from {
     opacity: 0;
     transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
