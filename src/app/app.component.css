@@ -383,7 +383,7 @@
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 450px) {
   .floating-island {
     max-width: calc(100vw - 4.5rem);
     padding-right: 0.55rem;
