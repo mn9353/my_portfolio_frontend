@@ -10,14 +10,14 @@
         (error)="onProfileImageError()"
       />
     } @else {
-      <span>{{ basicDetails.shortForm || 'ME' }}</span>
+      <span>{{ (basicDetails.shortForm || 'ME') | translate }}</span>
     }
   </div>
 
   <div class="identity">
-    <span class="name">{{ basicDetails.fullName }}</span>
+    <span class="name">{{ basicDetails.fullName | translate }}</span>
     <span class="dash">, </span>
-    <span class="role">{{ basicDetails.role || 'Developer' }}</span>
+    <span class="role">{{ (basicDetails.role || 'Developer') | translate }}</span>
   </div>
 </div>
 
@@ -29,7 +29,7 @@
         class="language-trigger"
         [class.open]="isLanguageMenuOpen"
         [class.language-changing]="isLanguageChanging"
-        aria-label="Select language"
+        [attr.aria-label]="'Select language' | translate"
         (click)="toggleLanguageMenu()"
       >
         {{ currentLanguageCode }}
@@ -44,7 +44,7 @@
               [class.active]="option.code === currentLanguageCode"
               (click)="selectLanguage(option.code, $event)"
             >
-              <span class="language-option-label">{{ option.label }}</span>
+              <span class="language-option-label">{{ option.label | translate }}</span>
             </button>
           }
         </div>
@@ -55,7 +55,7 @@
       type="button"
       class="theme-trigger"
       [class.is-dark]="currentTheme === 'dark'"
-      [attr.aria-label]="currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+      [attr.aria-label]="(currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode') | translate"
       (click)="toggleTheme()"
     >
       <span class="material-symbols-rounded bubble-icon" aria-hidden="true">
@@ -67,7 +67,7 @@
       type="button"
       class="menu-trigger"
       [class.open]="isMenuOpen"
-      [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
+      [attr.aria-label]="(isMenuOpen ? 'Close menu' : 'Open menu') | translate"
       (click)="toggleMenu()"
     >
       <span class="material-symbols-rounded bubble-icon" aria-hidden="true">
@@ -87,12 +87,12 @@
               [style.--item-index]="i"
               (click)="selectSection($event)"
             >
-              {{ item }}
+              {{ item | translate }}
             </button>
           }
         </div>
       } @else {
-        <div class="empty-sections">Loading sections...</div>
+        <div class="empty-sections">{{ 'Loading sections...' | translate }}</div>
       }
     </div>
   }

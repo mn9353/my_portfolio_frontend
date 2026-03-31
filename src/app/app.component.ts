@@ -2,7 +2,9 @@ import { Component, ElementRef, HostListener, OnInit, PLATFORM_ID, Renderer2, in
 import { isPlatformBrowser } from '@angular/common';
 import { ApiService } from './services/api.service';
 import { PopupService } from './services/popup.service';
+import { TranslateService } from './services/translate.service';
 import { PopupComponent } from './shared/components/popup/popup.component';
+import { TranslatePipe } from './pipes/translate.pipe';
 import { PortfolioBasic, Project, Section } from './interfaces';
 import {
   BASIC_DETAILS_FALLBACK,
@@ -18,7 +20,7 @@ type ThemeMode = 'light' | 'dark';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PopupComponent],
+  imports: [PopupComponent, TranslatePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit {
   readonly languageOptions = LANGUAGE_OPTIONS;
   private readonly apiService = inject(ApiService);
   private readonly popupService = inject(PopupService);
+  private readonly translateService = inject(TranslateService);
   private readonly renderer = inject(Renderer2);
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly platformId = inject(PLATFORM_ID);
@@ -44,6 +47,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.initializeTheme();
     this.initializeLanguage();
+    this.translateService.setLanguage(this.currentLanguageCode);
 
     this.apiService.getPortfolioBasic(DEFAULT_PORTFOLIO_ID).subscribe(data => {
       this.basicDetails = data;
@@ -104,6 +108,7 @@ export class AppComponent implements OnInit {
     event?.stopPropagation();
     const changed = this.currentLanguageCode !== code;
     this.currentLanguageCode = code;
+    this.translateService.setLanguage(code);
     this.isLanguageMenuOpen = false;
     if (changed) {
       this.triggerLanguageChangeAnimation();
