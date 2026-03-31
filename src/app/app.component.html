@@ -1,0 +1,50 @@
+<div class="floating-island">
+  <div class="avatar">
+    @if (profileImageSrc) {
+      <img
+        [src]="profileImageSrc"
+        [alt]="basicDetails.fullName"
+        referrerpolicy="no-referrer"
+        (error)="onProfileImageError()"
+      />
+    } @else {
+      <span>{{ basicDetails.shortForm || 'ME' }}</span>
+    }
+  </div>
+
+  <div class="identity">
+    <span class="name">{{ basicDetails.fullName }}</span>
+    <span class="dash">, </span>
+    <span class="role">{{ basicDetails.role || 'Developer' }}</span>
+  </div>
+</div>
+
+<div class="menu-island">
+  <button
+    type="button"
+    class="menu-trigger"
+    [class.open]="isMenuOpen"
+    [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
+    (click)="toggleMenu()"
+  >
+    {{ isMenuOpen ? 'x' : '=' }}
+  </button>
+
+  @if (isMenuOpen) {
+    <div class="menu-panel">
+      @if (sectionMenuItems.length > 0) {
+        <div class="section-list">
+          @for (item of sectionMenuItems; track item; let i = $index) {
+            <button type="button" class="section-item" [style.--item-index]="i">{{ item }}</button>
+          }
+        </div>
+      } @else {
+        <div class="empty-sections">Loading sections...</div>
+      }
+
+      <button type="button" class="theme-toggle" (click)="toggleTheme()">
+        {{ themeButtonLabel }}
+      </button>
+    </div>
+  }
+</div>

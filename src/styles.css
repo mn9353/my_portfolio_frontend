@@ -1,6 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lugrasimo&display=swap');
+
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  /* --page-bg: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9); */
+  --text-color: #111111;
+  --island-bg: rgba(255, 255, 255, 0.85);
+  --island-text: #111111;
+  --island-text-soft: rgba(17, 17, 17, 0.82);
+  --island-text-muted: rgba(17, 17, 17, 0.62);
+  --island-border: rgba(0, 0, 0, 0.12);
+  --island-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+  --avatar-bg: #e6e6e6;
+  --panel-bg: rgba(255, 255, 255, 0.96);
+  --theme-button-bg: #111111;
+  --theme-button-text: #ffffff;
+  --menu-contrast-ring: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --profile-island-bg: rgba(16, 16, 20, 0.9);
+  --profile-island-text: #ffffff;
+  --profile-island-text-soft: rgba(255, 255, 255, 0.88);
+  --profile-island-text-muted: rgba(255, 255, 255, 0.62);
+  --profile-island-border: rgba(255, 255, 255, 0.14);
+  --profile-island-shadow: 0 10px 25px rgba(0, 0, 0, 0.32);
+  --profile-avatar-bg: #2c2c2c;
+}
+
+body.theme-light {
+  --page-bg: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9);
+  --text-color: #111111;
+  --island-bg: rgba(255, 255, 255, 0.85);
+  --island-text: #111111;
+  --island-text-soft: rgba(17, 17, 17, 0.82);
+  --island-text-muted: rgba(17, 17, 17, 0.62);
+  --island-border: rgba(0, 0, 0, 0.12);
+  --island-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+  --avatar-bg: #e6e6e6;
+  --panel-bg: rgba(255, 255, 255, 0.96);
+  --theme-button-bg: #111111;
+  --theme-button-text: #ffffff;
+  --profile-island-bg: #000000;
+  --profile-island-text: #ffffff;
+  --profile-island-text-soft: rgba(255, 255, 255, 0.88);
+  --profile-island-text-muted: rgba(255, 255, 255, 0.62);
+  --profile-island-border: rgba(255, 255, 255, 0.14);
+  --profile-island-shadow: 0 10px 25px rgba(0, 0, 0, 0.32);
+  --profile-avatar-bg: #2c2c2c;
+}
+
+body.theme-dark {
+  --page-bg: #000000;
+  --text-color: #f2f5f8;
+  --island-bg: rgba(34, 39, 52, 0.95);
+  --island-text: #ffffff;
+  --island-text-soft: rgba(255, 255, 255, 0.88);
+  --island-text-muted: rgba(255, 255, 255, 0.62);
+  --island-border: rgba(255, 255, 255, 0.14);
+  --island-shadow: 0 10px 25px rgba(0, 0, 0, 0.32);
+  --avatar-bg: #2c2c2c;
+  --panel-bg: rgba(30, 35, 48, 0.97);
+  --theme-button-bg: #ffffff;
+  --theme-button-text: #111111;
+  --menu-contrast-ring: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  --profile-island-bg: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9);
+  --profile-island-text: #111111;
+  --profile-island-text-soft: rgba(17, 17, 17, 0.82);
+  --profile-island-text-muted: rgba(17, 17, 17, 0.62);
+  --profile-island-border: rgba(0, 0, 0, 0.12);
+  --profile-island-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+  --profile-avatar-bg: #e6e6e6;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px);
+  background-size: 140px 140px;
+  background-position: 0 0, 0 0;
+  animation: darkGridDrift 12s linear infinite;
+}
 
 html,
 body {
-  background-color: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9);
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--page-bg);
+  color: var(--text-color);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+@keyframes darkGridDrift {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 140px 140px, 140px 140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.theme-dark {
+    animation: none;
+  }
 }
