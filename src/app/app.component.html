@@ -20,15 +20,31 @@
 </div>
 
 <div class="menu-island">
-  <button
-    type="button"
-    class="menu-trigger"
-    [class.open]="isMenuOpen"
-    [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
-    (click)="toggleMenu()"
-  >
-    {{ isMenuOpen ? 'x' : '=' }}
-  </button>
+  <div class="menu-actions">
+    <button
+      type="button"
+      class="theme-trigger"
+      [class.is-dark]="currentTheme === 'dark'"
+      [attr.aria-label]="currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+      (click)="toggleTheme()"
+    >
+      <span class="material-symbols-rounded bubble-icon" aria-hidden="true">
+        {{ currentTheme === 'dark' ? 'dark_mode' : 'light_mode' }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="menu-trigger"
+      [class.open]="isMenuOpen"
+      [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
+      (click)="toggleMenu()"
+    >
+      <span class="material-symbols-rounded bubble-icon" aria-hidden="true">
+        {{ isMenuOpen ? 'close' : 'menu' }}
+      </span>
+    </button>
+  </div>
 
   @if (isMenuOpen) {
     <div class="menu-panel">
@@ -41,10 +57,6 @@
       } @else {
         <div class="empty-sections">Loading sections...</div>
       }
-
-      <button type="button" class="theme-toggle" (click)="toggleTheme()">
-        {{ themeButtonLabel }}
-      </button>
     </div>
   }
 </div>
