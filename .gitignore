@@ -44,6 +44,7 @@ testem.log
 !.env.example
 !.env.sample
 *.local
+.vercel/
 
 # Angular local environment overrides
 src/environments/environment.local.ts
