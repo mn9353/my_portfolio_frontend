@@ -36,6 +36,27 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+*.log
+
+# Environment and local config (keep secrets out of git)
+.env
+.env.*
+!.env.example
+!.env.sample
+*.local
+
+# Angular local environment overrides
+src/environments/environment.local.ts
+src/environments/environment.*.local.ts
+
+# Secrets / certificates / keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
 
 # System files
 .DS_Store
