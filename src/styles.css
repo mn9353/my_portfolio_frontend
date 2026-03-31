@@ -1,1 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  background-color: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9);
+}
