@@ -1,6 +1,12 @@
 <app-popup></app-popup>
 
-<div class="floating-island">
+<div
+  class="floating-island"
+  [class.is-compact]="isProfileCompressed"
+  [class.is-fading-out]="isProfileFadingOut"
+  (mouseenter)="onProfileHoverEnter()"
+  (mouseleave)="onProfileHoverLeave()"
+>
   <div class="avatar">
     @if (profileImageSrc) {
       <img
@@ -15,9 +21,13 @@
   </div>
 
   <div class="identity">
-    <span class="name">{{ basicDetails.fullName | translate }}</span>
-    <span class="dash">, </span>
-    <span class="role">{{ (basicDetails.role || 'Developer') | translate }}</span>
+    <span class="identity-full">
+      <span class="name name-core">{{ nameLeadLetter | translate }}</span>
+      <span class="name name-rest">{{ nameRest | translate }}</span>
+      <span class="dash">, </span>
+      <span class="role">{{ roleDisplayText | translate }}</span>
+    </span>
+    <span class="identity-short">{{ derivedShortForm | translate }}</span>
   </div>
 </div>
 
@@ -97,3 +107,20 @@
     </div>
   }
 </div>
+
+<main class="hero-content">
+  @if (basicDetails.openToWork) {
+    <div class="open-to-work-island">
+      <span class="open-dot" aria-hidden="true"></span>
+      <span class="open-text">{{ 'Actively seeking full time roles' | translate }}</span>
+    </div>
+  }
+
+  @if (displayedHeadlineLines.length > 0) {
+    <div class="hero-headline" role="heading" aria-level="1">
+      @for (line of displayedHeadlineLines; track $index) {
+        <span class="headline-line">{{ line }}</span>
+      }
+    </div>
+  }
+</main>

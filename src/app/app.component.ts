@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, PLATFORM_ID, Renderer2, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, PLATFORM_ID, Renderer2, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ApiService } from './services/api.service';
 import { PopupService } from './services/popup.service';
@@ -24,15 +24,36 @@ type ThemeMode = 'light' | 'dark';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';
-  basicDetails: PortfolioBasic = BASIC_DETAILS_FALLBACK;
+  basicDetails: PortfolioBasic = {
+    ...BASIC_DETAILS_FALLBACK,
+    fullName: '',
+    shortForm: '',
+    role: '',
+    openToWork: false,
+    headline: '',
+    subheadline: '',
+    aboutMe: '',
+    email: '',
+    phoneNumber: '',
+    location: '',
+    linkedinUrl: '',
+    githubUrl: '',
+    resumeUrl: '',
+    profileImageUrl: ''
+  };
   sections: Section[] = [];
   isMenuOpen = false;
   isLanguageMenuOpen = false;
   currentTheme: ThemeMode = DEFAULT_THEME_MODE;
   currentLanguageCode = 'EN';
   isLanguageChanging = false;
+  isProfileCompressed = false;
+  isDesktopProfileMode = false;
+  headlineLines: string[] = [];
+  displayedHeadlineLines: string[] = [];
+  displayedRoleText = '';
   readonly languageOptions = LANGUAGE_OPTIONS;
   private readonly apiService = inject(ApiService);
   private readonly popupService = inject(PopupService);
@@ -43,15 +64,27 @@ export class AppComponent implements OnInit {
   private profileImageIndex = 0;
   private projects: Project[] = [];
   private languageAnimTimer: ReturnType<typeof setTimeout> | null = null;
+  private headlineStartTimer: ReturnType<typeof setTimeout> | null = null;
+  private headlineFrameId: number | null = null;
+  private resizeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private profileCompressTimer: ReturnType<typeof setTimeout> | null = null;
+  private profileFadeTimer: ReturnType<typeof setTimeout> | null = null;
+  private roleTypingFrameId: number | null = null;
+  isProfileFadingOut = false;
 
   ngOnInit() {
     this.initializeTheme();
     this.initializeLanguage();
     this.translateService.setLanguage(this.currentLanguageCode);
+    this.updateProfileIslandMode();
+    this.startHeadlineAnimation();
 
     this.apiService.getPortfolioBasic(DEFAULT_PORTFOLIO_ID).subscribe(data => {
       this.basicDetails = data;
+      this.basicDetails.openToWork = true;
       this.profileImageIndex = 0;
+      this.startRoleTypingAnimation();
+      this.startHeadlineAnimation();
     }, error => {
       console.error('Error fetching basic details:', error);
       this.popupService.failure('Failed to load profile details. Please try again.');
@@ -72,6 +105,30 @@ export class AppComponent implements OnInit {
       console.error('Error fetching projects:', error);
       this.popupService.failure('Projects could not be loaded.');
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.languageAnimTimer) {
+      clearTimeout(this.languageAnimTimer);
+    }
+    if (this.headlineStartTimer) {
+      clearTimeout(this.headlineStartTimer);
+    }
+    if (this.resizeDebounceTimer) {
+      clearTimeout(this.resizeDebounceTimer);
+    }
+    if (this.profileCompressTimer) {
+      clearTimeout(this.profileCompressTimer);
+    }
+    if (this.profileFadeTimer) {
+      clearTimeout(this.profileFadeTimer);
+    }
+    if (this.roleTypingFrameId !== null && isPlatformBrowser(this.platformId)) {
+      cancelAnimationFrame(this.roleTypingFrameId);
+    }
+    if (this.headlineFrameId !== null && isPlatformBrowser(this.platformId)) {
+      cancelAnimationFrame(this.headlineFrameId);
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -109,6 +166,7 @@ export class AppComponent implements OnInit {
     const changed = this.currentLanguageCode !== code;
     this.currentLanguageCode = code;
     this.translateService.setLanguage(code);
+    this.startHeadlineAnimation();
     this.isLanguageMenuOpen = false;
     if (changed) {
       this.triggerLanguageChangeAnimation();
@@ -126,6 +184,48 @@ export class AppComponent implements OnInit {
 
   get sectionMenuItems(): string[] {
     return this.sections.map(section => section.title || section.sectionKey);
+  }
+
+  get normalizedFullName(): string {
+    return (this.basicDetails.fullName || '').trim();
+  }
+
+  get derivedShortForm(): string {
+    const explicitShort = (this.basicDetails.shortForm || '').trim();
+    if (explicitShort) {
+      return explicitShort.slice(0, 2).toUpperCase();
+    }
+
+    const name = this.normalizedFullName;
+    if (!name) {
+      return 'ME';
+    }
+
+    const words = name.split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+      return `${words[0][0] ?? ''}${words[1][0] ?? ''}`.toUpperCase();
+    }
+
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  get nameLeadLetter(): string {
+    return this.normalizedFullName.charAt(0) || this.derivedShortForm.charAt(0) || 'M';
+  }
+
+  get nameRest(): string {
+    return this.normalizedFullName.slice(1);
+  }
+
+  get compactSuffixLetter(): string {
+    return this.derivedShortForm.slice(1, 2);
+  }
+
+  get roleDisplayText(): string {
+    if (!this.isDesktopProfileMode) {
+      return this.basicDetails.role || 'Developer';
+    }
+    return this.displayedRoleText;
   }
 
   get profileImageSrc(): string | null {
@@ -194,6 +294,248 @@ export class AppComponent implements OnInit {
         this.isLanguageChanging = false;
       }, 320);
     });
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (this.resizeDebounceTimer) {
+      clearTimeout(this.resizeDebounceTimer);
+    }
+    this.resizeDebounceTimer = setTimeout(() => {
+      this.updateProfileIslandMode();
+      this.reflowHeadlineWithoutAnimation();
+    }, 150);
+  }
+
+  onProfileHoverEnter(): void {
+    if (!this.isDesktopHoverMode()) {
+      return;
+    }
+
+    if (this.profileCompressTimer) {
+      clearTimeout(this.profileCompressTimer);
+    }
+    if (this.profileFadeTimer) {
+      clearTimeout(this.profileFadeTimer);
+    }
+
+    this.isProfileFadingOut = false;
+    this.isProfileCompressed = false;
+    this.displayedRoleText = this.basicDetails.role || 'Developer';
+  }
+
+  onProfileHoverLeave(): void {
+    if (!this.isDesktopHoverMode()) {
+      return;
+    }
+
+    this.scheduleProfileCompression(2000);
+  }
+
+  get translatedHeadline(): string {
+    return this.translateService.translate(this.basicDetails.headline || '');
+  }
+
+  private startHeadlineAnimation(): void {
+    const headline = this.translatedHeadline.trim();
+    this.headlineLines = [];
+    this.displayedHeadlineLines = [];
+
+    if (!headline) {
+      return;
+    }
+
+    this.headlineLines = this.splitHeadlineIntoLines(headline);
+    this.displayedHeadlineLines = this.headlineLines.map(() => '');
+
+    if (!isPlatformBrowser(this.platformId)) {
+      this.displayedHeadlineLines = [...this.headlineLines];
+      return;
+    }
+
+    if (this.headlineStartTimer) {
+      clearTimeout(this.headlineStartTimer);
+    }
+    if (this.headlineFrameId !== null) {
+      cancelAnimationFrame(this.headlineFrameId);
+      this.headlineFrameId = null;
+    }
+
+    const lines = [...this.headlineLines];
+    const typingDelayMs = 24;
+    const linePauseMs = 260;
+    const initialDelayMs = 220;
+    let lineIndex = 0;
+    let charIndex = 0;
+    let lastTick = 0;
+
+    const animate = (now: number): void => {
+      if (lineIndex >= lines.length) {
+        this.headlineFrameId = null;
+        return;
+      }
+
+      if (lastTick === 0) {
+        lastTick = now;
+      }
+
+      const elapsed = now - lastTick;
+      const steps = Math.floor(elapsed / typingDelayMs);
+      if (steps <= 0) {
+        this.headlineFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      lastTick += steps * typingDelayMs;
+      const currentLine = lines[lineIndex];
+      charIndex = Math.min(currentLine.length, charIndex + steps);
+
+      const nextRendered = [...this.displayedHeadlineLines];
+      nextRendered[lineIndex] = currentLine.slice(0, charIndex);
+      this.displayedHeadlineLines = nextRendered;
+
+      if (charIndex >= currentLine.length) {
+        lineIndex += 1;
+        charIndex = 0;
+        lastTick += linePauseMs;
+      }
+
+      this.headlineFrameId = requestAnimationFrame(animate);
+    };
+
+    this.headlineStartTimer = setTimeout(() => {
+      this.headlineFrameId = requestAnimationFrame(animate);
+    }, initialDelayMs);
+  }
+
+  private reflowHeadlineWithoutAnimation(): void {
+    const headline = this.translatedHeadline.trim();
+    if (!headline) {
+      this.headlineLines = [];
+      this.displayedHeadlineLines = [];
+      return;
+    }
+
+    this.headlineLines = this.splitHeadlineIntoLines(headline);
+    this.displayedHeadlineLines = [...this.headlineLines];
+  }
+
+  private updateProfileIslandMode(): void {
+    this.isDesktopProfileMode = this.isDesktopHoverMode();
+    if (!this.isDesktopProfileMode) {
+      this.isProfileCompressed = false;
+      this.isProfileFadingOut = false;
+      if (this.profileCompressTimer) {
+        clearTimeout(this.profileCompressTimer);
+      }
+      if (this.profileFadeTimer) {
+        clearTimeout(this.profileFadeTimer);
+      }
+      this.displayedRoleText = this.basicDetails.role || 'Developer';
+      return;
+    }
+
+    this.isProfileCompressed = false;
+    this.isProfileFadingOut = false;
+    this.displayedRoleText = this.basicDetails.role || 'Developer';
+    this.scheduleProfileCompression(5000);
+  }
+
+  private scheduleProfileCompression(delayMs: number): void {
+    if (this.profileCompressTimer) {
+      clearTimeout(this.profileCompressTimer);
+    }
+    if (this.profileFadeTimer) {
+      clearTimeout(this.profileFadeTimer);
+    }
+
+    this.profileCompressTimer = setTimeout(() => {
+      if (this.isProfileCompressed) {
+        return;
+      }
+      this.isProfileFadingOut = true;
+
+      this.profileFadeTimer = setTimeout(() => {
+        this.isProfileFadingOut = false;
+        this.isProfileCompressed = true;
+      }, 650);
+    }, delayMs);
+  }
+
+  private isDesktopHoverMode(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches && window.innerWidth > 768;
+  }
+
+  private startRoleTypingAnimation(): void {
+    const role = this.basicDetails.role || 'Developer';
+    this.displayedRoleText = this.isProfileCompressed ? '' : role;
+  }
+
+  private splitHeadlineIntoLines(text: string): string[] {
+    if (!isPlatformBrowser(this.platformId)) {
+      return [text];
+    }
+
+    const words = text.split(/\s+/).filter(Boolean);
+    if (words.length <= 2) {
+      return [text];
+    }
+
+    const width = window.innerWidth;
+    const targetLines = width <= 560 ? 4 : width <= 960 ? 3 : 2;
+    const targetCharsPerLine = Math.ceil((text.length / targetLines) * 1.22);
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const candidate = currentLine ? `${currentLine} ${word}` : word;
+      if (candidate.length <= targetCharsPerLine || !currentLine) {
+        currentLine = candidate;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return this.balanceHeadlineLines(lines);
+  }
+
+  private balanceHeadlineLines(lines: string[]): string[] {
+    const normalized = lines.map(line => line.trim()).filter(Boolean);
+    if (normalized.length < 2) {
+      return normalized;
+    }
+
+    const wordCount = (line: string): number => line.split(/\s+/).filter(Boolean).length;
+    const tail = () => normalized[normalized.length - 1];
+    const prev = () => normalized[normalized.length - 2];
+
+    // Merge awkward tail lines like "business" + "impact."
+    while (normalized.length >= 2 && wordCount(tail()) === 1 && wordCount(prev()) <= 2) {
+      normalized[normalized.length - 2] = `${prev()} ${tail()}`.trim();
+      normalized.pop();
+    }
+
+    // If final line is still a single word, pull one word from previous line.
+    if (normalized.length >= 2 && wordCount(tail()) === 1) {
+      const prevWords = prev().split(/\s+/).filter(Boolean);
+      if (prevWords.length >= 2) {
+        const movedWord = prevWords.pop();
+        if (movedWord) {
+          normalized[normalized.length - 2] = prevWords.join(' ');
+          normalized[normalized.length - 1] = `${movedWord} ${tail()}`.trim();
+        }
+      }
+    }
+
+    return normalized;
   }
 
   private applyTheme(theme: ThemeMode, persist = true): void {
