@@ -108,6 +108,11 @@
   gap: 0.6rem;
 }
 
+.language-wrap {
+  position: relative;
+}
+
+.language-trigger,
 .theme-trigger,
 .menu-trigger {
   width: var(--bubble-height);
@@ -126,6 +131,68 @@
   justify-content: center;
   cursor: pointer;
   transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.language-trigger {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.language-trigger.open {
+  transform: translateY(1px);
+}
+
+.language-trigger.language-changing {
+  animation: languageChangePop 320ms ease;
+}
+
+.language-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  width: clamp(16rem, 34vw, 23rem);
+  max-width: calc(100vw - 2rem);
+  max-height: min(18rem, 55vh);
+  overflow-y: auto;
+  border-radius: 18px 2px 18px 18px;
+  background: var(--panel-bg);
+  box-shadow: var(--island-shadow), var(--menu-contrast-ring);
+  animation: panelIn 220ms ease both;
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.language-option-code {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.language-option-label {
+  font-size: 0.95em;
+  opacity: 0.9;
+}
+
+.language-option:hover,
+.language-option:focus-visible,
+.language-option.active {
+  background: var(--profile-island-bg);
+  color: var(--profile-island-text);
+  outline: none;
+}
+
+.language-option:active {
+  background: var(--profile-island-bg);
+  color: var(--profile-island-text);
+  transform: scale(0.98);
 }
 
 .theme-trigger {
@@ -156,17 +223,27 @@
   transform: rotate(90deg);
 }
 
+:host-context(body.theme-dark) .language-trigger,
+:host-context(body.theme-dark) .theme-trigger,
+:host-context(body.theme-dark) .menu-trigger {
+  box-shadow:
+    var(--island-shadow),
+    var(--menu-contrast-ring),
+    0 0 0 2px rgba(198, 227, 255, 0.22),
+    0 0 12px rgba(198, 227, 255, 0.16);
+}
+
 .menu-panel {
   margin-top: 10px;
   width: clamp(16rem, 34vw, 23rem);
   min-width: 0;
   max-width: calc(100vw - 2rem);
-  border-radius: 18px;
+  border-radius: 18px 2px 18px 18px;
   border: 0;
   background: var(--panel-bg);
   color: var(--island-text);
   box-shadow: var(--island-shadow), var(--menu-contrast-ring);
-  padding: 16px;
+  padding: 50px;
   transform-origin: top right;
   animation: panelIn 240ms ease both;
 }
@@ -185,7 +262,7 @@
   color: var(--island-text);
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: 1.12rem;
+  font-size: 1.5rem;
   font-family: 'Gelasio', 'Cormorant Garamond', 'Times New Roman', serif;
   line-height: 1.35;
   white-space: normal;
@@ -203,6 +280,13 @@
   background: var(--profile-island-bg);
   color: var(--profile-island-text);
   transform: translateX(2px);
+  outline: none;
+}
+
+.section-item:active {
+  background: var(--profile-island-bg);
+  color: var(--profile-island-text);
+  transform: translateX(2px) scale(0.98);
   outline: none;
 }
 
@@ -245,6 +329,21 @@
   }
 }
 
+@keyframes languageChangePop {
+  0% {
+    transform: scale(1);
+    box-shadow: var(--island-shadow), var(--menu-contrast-ring);
+  }
+  45% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08), var(--island-shadow), var(--menu-contrast-ring);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: var(--island-shadow), var(--menu-contrast-ring);
+  }
+}
+
 @media (max-width: 640px) {
   :host {
     --bubble-height: 2.55rem;
@@ -269,6 +368,12 @@
 
   .menu-panel {
     width: clamp(14rem, 72vw, 20rem);
+    max-width: calc(100vw - 1.5rem);
+    padding: 0.9rem;
+  }
+
+  .language-panel {
+    width: clamp(10rem, 72vw, 10rem);
     max-width: calc(100vw - 1.5rem);
     padding: 0.9rem;
   }
@@ -303,5 +408,19 @@
   .menu-trigger {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+@media (hover: none) {
+  .language-option:hover {
+    background: transparent;
+    color: var(--island-text);
+    transform: none;
+  }
+
+  .section-item:hover {
+    background: transparent;
+    color: var(--island-text);
+    transform: none;
   }
 }
