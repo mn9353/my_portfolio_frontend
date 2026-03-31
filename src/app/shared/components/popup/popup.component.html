@@ -1,0 +1,19 @@
+<div class="popup-stack">
+  @for (popup of popupService.messages(); track popup.id) {
+    <div class="popup-item" [class.success]="popup.type === 'success'" [class.failure]="popup.type === 'failure'">
+      <div class="popup-content">
+        <div class="popup-title">{{ popup.title }}</div>
+        <div class="popup-message">{{ popup.message }}</div>
+      </div>
+
+      <button
+        type="button"
+        class="popup-close"
+        aria-label="Dismiss popup"
+        (click)="dismiss(popup.id)"
+      >
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+  }
+</div>

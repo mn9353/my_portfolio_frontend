@@ -3,6 +3,7 @@ export interface PortfolioBasic {
   fullName: string;
   shortForm: string | null;
   role: string | null;
+  openToWork: boolean;
   headline: string | null;
   subheadline: string | null;
   aboutMe: string | null;

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Lugrasimo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Gelasio:wght@500;600;700&family=Lugrasimo&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0&display=swap');
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -16,6 +16,12 @@
   --theme-button-bg: #111111;
   --theme-button-text: #ffffff;
   --menu-contrast-ring: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --popup-success-bg: rgba(20, 112, 62, 0.92);
+  --popup-success-text: #f5fff8;
+  --popup-success-border: rgba(185, 255, 214, 0.42);
+  --popup-failure-bg: rgba(148, 32, 32, 0.94);
+  --popup-failure-text: #fff4f4;
+  --popup-failure-border: rgba(255, 198, 198, 0.45);
   --profile-island-bg: rgba(16, 16, 20, 0.9);
   --profile-island-text: #ffffff;
   --profile-island-text-soft: rgba(255, 255, 255, 0.88);
@@ -38,6 +44,12 @@ body.theme-light {
   --panel-bg: rgba(255, 255, 255, 0.96);
   --theme-button-bg: #111111;
   --theme-button-text: #ffffff;
+  --popup-success-bg: rgba(20, 112, 62, 0.92);
+  --popup-success-text: #f5fff8;
+  --popup-success-border: rgba(185, 255, 214, 0.42);
+  --popup-failure-bg: rgba(148, 32, 32, 0.94);
+  --popup-failure-text: #fff4f4;
+  --popup-failure-border: rgba(255, 198, 198, 0.45);
   --profile-island-bg: #000000;
   --profile-island-text: #ffffff;
   --profile-island-text-soft: rgba(255, 255, 255, 0.88);
@@ -61,6 +73,12 @@ body.theme-dark {
   --theme-button-bg: #ffffff;
   --theme-button-text: #111111;
   --menu-contrast-ring: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  --popup-success-bg: rgba(24, 157, 85, 0.26);
+  --popup-success-text: #d8ffe8;
+  --popup-success-border: rgba(140, 255, 188, 0.4);
+  --popup-failure-bg: rgba(196, 59, 59, 0.24);
+  --popup-failure-text: #ffd9d9;
+  --popup-failure-border: rgba(255, 157, 157, 0.4);
   --profile-island-bg: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9);
   --profile-island-text: #111111;
   --profile-island-text-soft: rgba(17, 17, 17, 0.82);

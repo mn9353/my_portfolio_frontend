@@ -1,3 +1,5 @@
+<app-popup></app-popup>
+
 <div class="floating-island">
   <div class="avatar">
     @if (profileImageSrc) {
@@ -20,31 +22,78 @@
 </div>
 
 <div class="menu-island">
-  <button
-    type="button"
-    class="menu-trigger"
-    [class.open]="isMenuOpen"
-    [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
-    (click)="toggleMenu()"
-  >
-    {{ isMenuOpen ? 'x' : '=' }}
-  </button>
+  <div class="menu-actions">
+    <div class="language-wrap">
+      <button
+        type="button"
+        class="language-trigger"
+        [class.open]="isLanguageMenuOpen"
+        [class.language-changing]="isLanguageChanging"
+        aria-label="Select language"
+        (click)="toggleLanguageMenu()"
+      >
+        {{ currentLanguageCode }}
+      </button>
+
+      @if (isLanguageMenuOpen) {
+        <div class="language-panel">
+          @for (option of languageOptions; track option.code) {
+            <button
+              type="button"
+              class="language-option section-item"
+              [class.active]="option.code === currentLanguageCode"
+              (click)="selectLanguage(option.code, $event)"
+            >
+              <span class="language-option-label">{{ option.label }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="theme-trigger"
+      [class.is-dark]="currentTheme === 'dark'"
+      [attr.aria-label]="currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+      (click)="toggleTheme()"
+    >
+      <span class="material-symbols-rounded bubble-icon" aria-hidden="true">
+        {{ currentTheme === 'dark' ? 'dark_mode' : 'light_mode' }}
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="menu-trigger"
+      [class.open]="isMenuOpen"
+      [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
+      (click)="toggleMenu()"
+    >
+      <span class="material-symbols-rounded bubble-icon" aria-hidden="true">
+        {{ isMenuOpen ? 'close' : 'menu' }}
+      </span>
+    </button>
+  </div>
 
   @if (isMenuOpen) {
     <div class="menu-panel">
       @if (sectionMenuItems.length > 0) {
         <div class="section-list">
           @for (item of sectionMenuItems; track item; let i = $index) {
-            <button type="button" class="section-item" [style.--item-index]="i">{{ item }}</button>
+            <button
+              type="button"
+              class="section-item"
+              [style.--item-index]="i"
+              (click)="selectSection($event)"
+            >
+              {{ item }}
+            </button>
           }
         </div>
       } @else {
         <div class="empty-sections">Loading sections...</div>
       }
-
-      <button type="button" class="theme-toggle" (click)="toggleTheme()">
-        {{ themeButtonLabel }}
-      </button>
     </div>
   }
 </div>

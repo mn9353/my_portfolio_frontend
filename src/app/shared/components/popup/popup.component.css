@@ -1,0 +1,93 @@
+.popup-stack {
+  position: fixed;
+  top: 4.6rem;
+  right: 1.5rem;
+  z-index: 10000;
+  display: grid;
+  gap: 0.6rem;
+  width: min(24rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.popup-item {
+  pointer-events: auto;
+  border-radius: 14px;
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border: 1px solid transparent;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  animation: popupIn 220ms ease both;
+}
+
+.popup-item.success {
+  background: var(--popup-success-bg);
+  color: var(--popup-success-text);
+  border-color: var(--popup-success-border);
+}
+
+.popup-item.failure {
+  background: var(--popup-failure-bg);
+  color: var(--popup-failure-text);
+  border-color: var(--popup-failure-border);
+}
+
+.popup-content {
+  min-width: 0;
+}
+
+.popup-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.popup-message {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.popup-close {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.popup-close:hover {
+  opacity: 1;
+}
+
+.popup-close .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+@keyframes popupIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .popup-stack {
+    top: 4.2rem;
+    right: 0.75rem;
+    width: min(22rem, calc(100vw - 1rem));
+  }
+}
