@@ -5,12 +5,13 @@ import { PopupService } from './services/popup.service';
 import { TranslateService } from './services/translate.service';
 import { PopupComponent } from './shared/components/popup/popup.component';
 import { TranslatePipe } from './pipes/translate.pipe';
-import { PortfolioBasic, Project, Section } from './interfaces';
+import { Language, PortfolioBasic, Project, Section, TranslationKeyValue } from './interfaces';
 import {
   BASIC_DETAILS_FALLBACK,
   DEFAULT_PORTFOLIO_ID,
   DEFAULT_THEME_MODE,
   LANGUAGE_OPTIONS,
+  LanguageOption,
   LANGUAGE_STORAGE_KEY,
   THEME_STORAGE_KEY
 } from './constants/constant';
@@ -54,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
   headlineLines: string[] = [];
   displayedHeadlineLines: string[] = [];
   displayedRoleText = '';
-  readonly languageOptions = LANGUAGE_OPTIONS;
+  languageOptions: LanguageOption[] = [...LANGUAGE_OPTIONS];
   private readonly apiService = inject(ApiService);
   private readonly popupService = inject(PopupService);
   private readonly translateService = inject(TranslateService);
@@ -76,12 +77,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initializeTheme();
     this.initializeLanguage();
     this.translateService.setLanguage(this.currentLanguageCode);
+    this.loadTranslationsForLanguage(this.currentLanguageCode);
+    this.loadLanguageOptions();
     this.updateProfileIslandMode();
     this.startHeadlineAnimation();
 
     this.apiService.getPortfolioBasic(DEFAULT_PORTFOLIO_ID).subscribe(data => {
       this.basicDetails = data;
-      this.basicDetails.openToWork = true;
       this.profileImageIndex = 0;
       this.startRoleTypingAnimation();
       this.startHeadlineAnimation();
@@ -133,10 +135,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    const target = event.target as Node;
-    if (!this.elementRef.nativeElement.contains(target)) {
-      this.isMenuOpen = false;
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    const clickedInsideLanguageMenu = !!target.closest('.language-wrap');
+    const clickedInsideSectionsMenu = !!target.closest('.menu-island');
+
+    if (!clickedInsideLanguageMenu) {
       this.isLanguageMenuOpen = false;
+    }
+
+    if (!clickedInsideSectionsMenu) {
+      this.isMenuOpen = false;
     }
   }
 
@@ -166,6 +178,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const changed = this.currentLanguageCode !== code;
     this.currentLanguageCode = code;
     this.translateService.setLanguage(code);
+    this.loadTranslationsForLanguage(code);
     this.startHeadlineAnimation();
     this.isLanguageMenuOpen = false;
     if (changed) {
@@ -190,6 +203,11 @@ export class AppComponent implements OnInit, OnDestroy {
     return (this.basicDetails.fullName || '').trim();
   }
 
+  get translatedFullName(): string {
+    const rawName = (this.basicDetails.fullName || '').trim();
+    return this.translateService.translate(rawName).trim();
+  }
+
   get derivedShortForm(): string {
     const explicitShort = (this.basicDetails.shortForm || '').trim();
     if (explicitShort) {
@@ -210,11 +228,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   get nameLeadLetter(): string {
-    return this.normalizedFullName.charAt(0) || this.derivedShortForm.charAt(0) || 'M';
+    return this.translatedFullName.charAt(0) || this.derivedShortForm.charAt(0) || 'M';
   }
 
   get nameRest(): string {
-    return this.normalizedFullName.slice(1);
+    return this.translatedFullName.slice(1);
   }
 
   get compactSuffixLetter(): string {
@@ -270,16 +288,48 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private initializeLanguage(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      this.currentLanguageCode = LANGUAGE_OPTIONS[0]?.code ?? 'EN';
-      return;
+    const hasEnglish = this.languageOptions.some(option => option.code === 'EN');
+    this.currentLanguageCode = hasEnglish ? 'EN' : (this.languageOptions[0]?.code ?? 'EN');
+  }
+
+  private loadLanguageOptions(): void {
+    this.apiService.getLanguages(false).subscribe({
+      next: (languages: Language[]) => {
+        const mappedOptions = languages
+          .map(item => ({
+            code: (item.languageCode || '').trim().toUpperCase(),
+            label: (item.language || '').trim()
+          }))
+          .filter(item => !!item.code && !!item.label);
+
+        if (mappedOptions.length === 0) {
+          console.warn('Languages API returned an empty list. Keeping fallback language options.');
+          return;
+        }
+
+        const englishOptions = mappedOptions.filter(option => option.code === 'EN');
+        const nonEnglishOptions = mappedOptions.filter(option => option.code !== 'EN');
+        this.languageOptions = [...englishOptions, ...nonEnglishOptions];
+        this.syncLanguageSelectionWithOptions();
+      },
+      error: (error) => {
+        console.error('Error fetching languages:', error);
+        this.popupService.failure('Unable to load languages from API. Showing default language options.');
+      }
+    });
+  }
+
+  private syncLanguageSelectionWithOptions(): void {
+    const hasEnglish = this.languageOptions.some(option => option.code === 'EN');
+    const selectedCode = hasEnglish ? 'EN' : (this.languageOptions[0]?.code ?? 'EN');
+
+    this.currentLanguageCode = selectedCode;
+    this.translateService.setLanguage(selectedCode);
+    this.loadTranslationsForLanguage(selectedCode);
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedCode);
     }
-
-    const storedCode = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    const fallbackCode = LANGUAGE_OPTIONS[0]?.code ?? 'EN';
-    const isAllowed = LANGUAGE_OPTIONS.some(option => option.code === storedCode);
-
-    this.currentLanguageCode = isAllowed && storedCode ? storedCode : fallbackCode;
   }
 
   private triggerLanguageChangeAnimation(): void {
@@ -293,6 +343,36 @@ export class AppComponent implements OnInit, OnDestroy {
       this.languageAnimTimer = setTimeout(() => {
         this.isLanguageChanging = false;
       }, 320);
+    });
+  }
+
+  private loadTranslationsForLanguage(languageCode: string): void {
+    const normalizedCode = (languageCode || '').trim().toUpperCase();
+    if (!normalizedCode || normalizedCode === 'EN') {
+      return;
+    }
+
+    this.apiService.getTranslationsByLanguageCode(normalizedCode).subscribe({
+      next: (translations: TranslationKeyValue[]) => {
+        const entries = translations
+          .map(item => ({
+            key: (item.translationKey || '').trim(),
+            value: (item.translationValue || '').trim()
+          }))
+          .filter(item => !!item.key && !!item.value);
+
+        if (entries.length === 0) {
+          console.warn(`No translations returned for language ${normalizedCode}.`);
+          return;
+        }
+
+        this.translateService.updateFromApi(normalizedCode, entries);
+        this.startHeadlineAnimation();
+      },
+      error: (error) => {
+        console.error(`Error fetching translations for ${normalizedCode}:`, error);
+        this.popupService.failure(`Unable to load ${normalizedCode} translations from API.`);
+      }
     });
   }
 
@@ -544,6 +624,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.renderer.removeClass(document.body, 'theme-light');
       this.renderer.removeClass(document.body, 'theme-dark');
       this.renderer.addClass(document.body, theme === 'dark' ? 'theme-dark' : 'theme-light');
+      this.renderer.removeClass(document.documentElement, 'theme-light');
+      this.renderer.removeClass(document.documentElement, 'theme-dark');
+      this.renderer.addClass(document.documentElement, theme === 'dark' ? 'theme-dark' : 'theme-light');
     }
 
     if (persist && isPlatformBrowser(this.platformId)) {

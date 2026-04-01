@@ -21,7 +21,7 @@ export const BASIC_DETAILS_FALLBACK: PortfolioBasic = {
   fullName: 'Manoj N',
   shortForm: 'MN',
   role: 'Full Stack Engineer',
-  openToWork: true,
+  openToWork: false,
   headline: 'I build scalable full-stack products with clean architecture and real business impact.',
   subheadline: 'Angular - .NET - C# - MongoDB - PostgreSQL',
   aboutMe: 'Full stack developer with hands-on experience building enterprise applications, APIs, dashboards, and scalable backend systems. Passionate about clean architecture, performance, and product-driven engineering.',

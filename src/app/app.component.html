@@ -54,7 +54,7 @@
               [class.active]="option.code === currentLanguageCode"
               (click)="selectLanguage(option.code, $event)"
             >
-              <span class="language-option-label">{{ option.label | translate }}</span>
+              <span class="language-option-label">{{ option.label | translate }} ({{ option.code }})</span>
             </button>
           }
         </div>
@@ -139,8 +139,7 @@
       >
         <span class="resume-text">{{ 'Download Resume' | translate }}</span>
         <span class="resume-arrow-wrapper" aria-hidden="true">
-          <span class="resume-arrow-static material-symbols-outlined">arrow_right_alt</span>
-          <span class="resume-arrow-moving material-symbols-outlined">arrow_right_alt</span>
+          <span class="resume-arrow material-symbols-outlined">arrow_right_alt</span>
         </span>
       </a>
     </div>

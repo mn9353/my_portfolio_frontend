@@ -1,6 +1,5 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { LANGUAGE_OPTIONS } from '../constants/constant';
 
 export interface TranslationEntry {
   key: string;
@@ -8,30 +7,6 @@ export interface TranslationEntry {
 }
 
 const CACHE_KEY_PREFIX = 'portfolio_translations_';
-
-const STATIC_TRANSLATIONS: Record<string, Record<string, string>> = {
-  EN: {},
-  HI: {
-    Developer: 'डेवलपर',
-    'Loading sections...': 'सेक्शन लोड हो रहे हैं...',
-    English: 'अंग्रेज़ी',
-    Hindi: 'हिंदी',
-    Kannada: 'कन्नड़',
-    Success: 'सफल',
-    'Something Went Wrong': 'कुछ गलत हो गया',
-    'Dismiss popup': 'पॉपअप बंद करें'
-  },
-  KN: {
-    Developer: 'ಡೆವಲಪರ್',
-    'Loading sections...': 'ವಿಭಾಗಗಳು ಲೋಡ್ ಆಗುತ್ತಿವೆ...',
-    English: 'ಇಂಗ್ಲಿಷ್',
-    Hindi: 'ಹಿಂದಿ',
-    Kannada: 'ಕನ್ನಡ',
-    Success: 'ಯಶಸ್ಸು',
-    'Something Went Wrong': 'ಏನೋ ತಪ್ಪಾಗಿದೆ',
-    'Dismiss popup': 'ಪಾಪ್‌ಅಪ್ ಮುಚ್ಚಿ'
-  }
-};
 
 @Injectable({
   providedIn: 'root'
@@ -79,17 +54,11 @@ export class TranslateService {
 
   private normalizeCode(code: string): string {
     const normalized = code?.toUpperCase?.() ?? 'EN';
-    const allowed = LANGUAGE_OPTIONS.some(option => option.code === normalized);
-    return allowed ? normalized : 'EN';
+    return normalized.trim() || 'EN';
   }
 
   private resolveDictionary(languageCode: string): Record<string, string> {
-    const fromStatic = STATIC_TRANSLATIONS[languageCode] ?? {};
-    const fromCache = this.readCache(languageCode);
-    return {
-      ...fromStatic,
-      ...fromCache
-    };
+    return { ...this.readCache(languageCode) };
   }
 
   private readCache(languageCode: string): Record<string, string> {

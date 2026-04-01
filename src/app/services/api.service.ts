@@ -7,12 +7,14 @@ import {
   Certification,
   Education,
   Experience,
+  Language,
   PortfolioBasic,
   Project,
   Section,
   Skill,
   SocialLink,
-  Testimonial
+  Testimonial,
+  TranslationKeyValue
 } from '../interfaces';
 
 type QueryValue = string | number | boolean | null | undefined;
@@ -22,6 +24,8 @@ type QueryParams = Record<string, QueryValue>;
   providedIn: 'root'
 })
 export class ApiService {
+  private readonly translationApiBaseUrl = environment.translationApiBaseUrl || environment.apiBaseUrl;
+
   constructor(private http: HttpClient) {}
 
   getPortfolioBasic(portfolioId: string | number): Observable<PortfolioBasic> {
@@ -62,6 +66,17 @@ export class ApiService {
 
   getSectionsByPortfolioId(portfolioId: string | number): Observable<Section[]> {
     return this.get<Section[]>(`/api/sections/${portfolioId}`);
+  }
+
+  getLanguages(includeInactive = false): Observable<Language[]> {
+    return this.get<Language[]>('/api/languages', { includeInactive });
+  }
+
+  getTranslationsByLanguageCode(languageCode: string): Observable<TranslationKeyValue[]> {
+    const normalizedCode = (languageCode || '').trim().toUpperCase();
+    const safeCode = encodeURIComponent(normalizedCode);
+    const baseUrl = this.translationApiBaseUrl.replace(/\/$/, '');
+    return this.http.get<TranslationKeyValue[]>(`${baseUrl}/api/translations/${safeCode}`);
   }
 
   private get<T>(endpoint: string, params?: QueryParams): Observable<T> {

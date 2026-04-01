@@ -36,7 +36,8 @@
   --profile-avatar-bg: #2c2c2c;
 }
 
-body.theme-light {
+body.theme-light,
+html.theme-light {
   --page-bg: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9);
   --text-color: #111111;
   --island-bg: rgba(255, 255, 255, 0.85);
@@ -75,9 +76,17 @@ body.theme-light {
   --resume-download-button-hover-text: #fff;
   --resume-arrow-static: #fff;
   --resume-arrow-moving: #fff;
+  --scrollbar-track: rgba(0, 0, 0, 0.06);
+  --scrollbar-thumb: rgba(17, 17, 17, 0.26);
+  --scrollbar-thumb-hover: rgba(17, 17, 17, 0.4);
+  --scrollbar-thumb-active: rgba(17, 17, 17, 0.52);
+  --page-scrollbar-thumb: rgba(17, 17, 17, 0.16);
+  --page-scrollbar-thumb-hover: rgba(17, 17, 17, 0.26);
+  --page-scrollbar-thumb-active: rgba(17, 17, 17, 0.36);
 }
 
-body.theme-dark {
+body.theme-dark,
+html.theme-dark {
   --page-bg: #000000;
   --text-color: #f2f5f8;
   --island-bg: rgba(34, 39, 52, 0.95);
@@ -123,6 +132,13 @@ body.theme-dark {
   --resume-download-button-hover-text: #000000;
   --resume-arrow-static: #000000;
   --resume-arrow-moving: #000000;
+  --scrollbar-track: rgba(255, 255, 255, 0.08);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.3);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.46);
+  --scrollbar-thumb-active: rgba(255, 255, 255, 0.62);
+  --page-scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --page-scrollbar-thumb-hover: rgba(255, 255, 255, 0.32);
+  --page-scrollbar-thumb-active: rgba(255, 255, 255, 0.44);
 }
 
 html,
@@ -132,6 +148,95 @@ body {
   background-color: var(--page-bg);
   color: var(--text-color);
   transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html,
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--page-scrollbar-thumb) transparent;
+}
+
+.language-panel,
+.menu-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.language-panel::-webkit-scrollbar,
+.menu-panel::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.language-panel::-webkit-scrollbar-track,
+.menu-panel::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: var(--page-scrollbar-thumb);
+  border-radius: 999px;
+  border: 0;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--page-scrollbar-thumb-hover);
+  border: 0;
+}
+
+html::-webkit-scrollbar-thumb:active,
+body::-webkit-scrollbar-thumb:active {
+  background: var(--page-scrollbar-thumb-active);
+  border: 0;
+}
+
+.language-panel::-webkit-scrollbar-thumb,
+.menu-panel::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.language-panel::-webkit-scrollbar-thumb:hover,
+.menu-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.language-panel::-webkit-scrollbar-thumb:active,
+.menu-panel::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-button,
+body::-webkit-scrollbar-button,
+.language-panel::-webkit-scrollbar-button,
+.menu-panel::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+.language-panel::-webkit-scrollbar-corner,
+.menu-panel::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @keyframes darkGridDrift {
