@@ -1,0 +1,108 @@
+<section class="portfolio-section projects-section">
+  <div class="section-heading-wrap">
+    <span class="section-heading-line" aria-hidden="true"></span>
+    <h2 class="section-heading">{{ heading | translate }}</h2>
+    <span class="section-heading-line" aria-hidden="true"></span>
+  </div>
+
+  @if (isLoading) {
+    <div class="projects-loading">{{ 'Loading projects...' | translate }}</div>
+  } @else if (loadError) {
+    <div class="projects-error">{{ loadError | translate }}</div>
+  } @else if (projects.length > 0) {
+    <div class="projects-carousel">
+      <button
+        type="button"
+        class="carousel-nav carousel-nav-prev"
+        [disabled]="!canScrollLeft"
+        [attr.aria-label]="'Previous project' | translate"
+        (click)="previous()"
+      >
+        <span class="material-symbols-rounded">chevron_left</span>
+      </button>
+
+      <button
+        type="button"
+        class="carousel-nav carousel-nav-next"
+        [disabled]="!canScrollRight"
+        [attr.aria-label]="'Next project' | translate"
+        (click)="next()"
+      >
+        <span class="material-symbols-rounded">chevron_right</span>
+      </button>
+
+      <div class="carousel-viewport" #carouselViewport (scroll)="onViewportScroll()">
+        <div class="carousel-spacer" aria-hidden="true"></div>
+        @for (project of projects; track project.id) {
+          <article
+            class="project-card"
+            [class.is-focused-mobile]="project.id === focusedProjectId"
+            [attr.data-project-id]="project.id"
+          >
+            <div class="project-media">
+              @if (project.imageUrl) {
+                <img
+                  [src]="getProjectImageSrc(project)"
+                  [alt]="project.title | translate"
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                  (error)="onProjectImageError(project.id)"
+                />
+              } @else {
+                <div class="project-image-placeholder">{{ 'Project' | translate }}</div>
+              }
+            </div>
+
+            <div class="project-content">
+              <h3 class="project-title">{{ project.title | translate }}</h3>
+
+              @if (project.technologiesUsed && project.technologiesUsed.length > 0) {
+                <div class="project-technologies">
+                  @for (tech of project.technologiesUsed; track tech.technology) {
+                    <span
+                      class="tech-chip"
+                      [style.color]="getTechnologyTextColor(tech)"
+                      [style.background-color]="getTechnologyBackgroundColor(tech)"
+                    >
+                      {{ tech.technology | translate }}
+                    </span>
+                  }
+                </div>
+              }
+
+              <p class="project-description">
+                {{ (project.shortDescription || 'No description available.') | translate }}
+              </p>
+
+              <div class="project-actions">
+                <button type="button" class="project-details-action">
+                  <span>{{ 'View Details' | translate }}</span>
+                  <span class="material-symbols-rounded details-arrow" aria-hidden="true">arrow_forward</span>
+                </button>
+
+                @if (project.githubUrl) {
+                  <a
+                    class="project-github-link"
+                    [href]="project.githubUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    [attr.aria-label]="'View on GitHub' | translate"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.35-3.88-1.35-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.78 1.2 1.78 1.2 1.03 1.78 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.3 1.2-3.12-.12-.3-.52-1.5.12-3.12 0 0 .98-.31 3.2 1.19a11.02 11.02 0 0 1 5.82 0c2.22-1.5 3.2-1.2 3.2-1.2.64 1.63.24 2.83.12 3.13.75.82 1.2 1.86 1.2 3.12 0 4.43-2.7 5.41-5.27 5.7.42.37.78 1.08.78 2.19 0 1.58-.01 2.85-.01 3.24 0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                    </svg>
+                  </a>
+                }
+              </div>
+            </div>
+          </article>
+        }
+        <div class="carousel-spacer" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="carousel-progress" aria-hidden="true">
+      <span class="carousel-progress-fill" [style.width.%]="scrollProgress"></span>
+    </div>
+  }
+</section>

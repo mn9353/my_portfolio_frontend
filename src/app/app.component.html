@@ -135,7 +135,7 @@
         [href]="basicDetails.resumeUrl"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Download resume"
+        [attr.aria-label]="'Download resume' | translate"
       >
         <span class="resume-text">{{ 'Download Resume' | translate }}</span>
         <span class="resume-arrow-wrapper" aria-hidden="true">
@@ -145,3 +145,8 @@
     </div>
   }
 </main>
+
+<app-projects-section
+  [heading]="projectsSectionHeading"
+  [portfolioId]="portfolioId"
+></app-projects-section>
