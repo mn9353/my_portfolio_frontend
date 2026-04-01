@@ -383,7 +383,7 @@
 
 @media (max-width: 640px) {
   .projects-carousel {
-    --project-card-width: clamp(18rem, 88vw, 24rem);
+    --project-card-width: clamp(18.8rem, 92vw, 24.8rem);
   }
 
   .project-media {
