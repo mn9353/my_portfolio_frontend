@@ -5,7 +5,8 @@ import { PopupService } from './services/popup.service';
 import { TranslateService } from './services/translate.service';
 import { PopupComponent } from './shared/components/popup/popup.component';
 import { TranslatePipe } from './pipes/translate.pipe';
-import { Language, PortfolioBasic, Project, Section, TranslationKeyValue } from './interfaces';
+import { Language, PortfolioBasic, Section, TranslationKeyValue } from './interfaces';
+import { ProjectsSectionComponent } from './sections/projects-section/projects-section.component';
 import {
   BASIC_DETAILS_FALLBACK,
   DEFAULT_PORTFOLIO_ID,
@@ -21,12 +22,13 @@ type ThemeMode = 'light' | 'dark';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PopupComponent, TranslatePipe],
+  imports: [PopupComponent, TranslatePipe, ProjectsSectionComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';
+  readonly portfolioId = DEFAULT_PORTFOLIO_ID;
   basicDetails: PortfolioBasic = {
     ...BASIC_DETAILS_FALLBACK,
     fullName: '',
@@ -63,7 +65,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly platformId = inject(PLATFORM_ID);
   private profileImageIndex = 0;
-  private projects: Project[] = [];
   private languageAnimTimer: ReturnType<typeof setTimeout> | null = null;
   private headlineStartTimer: ReturnType<typeof setTimeout> | null = null;
   private headlineFrameId: number | null = null;
@@ -101,12 +102,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.popupService.failure('Unable to load menu sections right now.');
     });
 
-    this.apiService.getPortfolioProjects(DEFAULT_PORTFOLIO_ID).subscribe(data => {
-      this.projects = data;
-    }, error => {
-      console.error('Error fetching projects:', error);
-      this.popupService.failure('Projects could not be loaded.');
-    });
   }
 
   ngOnDestroy(): void {
@@ -197,6 +192,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   get sectionMenuItems(): string[] {
     return this.sections.map(section => section.title || section.sectionKey);
+  }
+
+  get projectsSectionHeading(): string {
+    const projectsSection = this.sections.find(section =>
+      (section.sectionKey || '').toLowerCase().includes('project')
+    );
+    const subtitle = (projectsSection?.subtitle || '').trim();
+    return subtitle || 'My Projects';
   }
 
   get normalizedFullName(): string {
