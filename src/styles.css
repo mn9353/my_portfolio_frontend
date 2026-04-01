@@ -3,7 +3,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-  /* --page-bg: var(--token-aa303802-e5d1-4856-bfe5-30475052d91c, #d9d9d9); */
+  --page-bg: #070d21;
   --text-color: #111111;
   --island-bg: rgba(255, 255, 255, 0.85);
   --island-text: #111111;

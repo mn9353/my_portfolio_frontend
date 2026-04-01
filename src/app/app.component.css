@@ -340,6 +340,16 @@
   min-height: 1.3em;
 }
 
+.projects-gate-loading {
+  width: min(92vw, 78rem);
+  margin: 2rem auto 0;
+  text-align: center;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.96rem;
+  color: color-mix(in srgb, var(--text-color) 62%, transparent);
+}
+
+
 .menu-actions {
   display: inline-flex;
   align-items: center;

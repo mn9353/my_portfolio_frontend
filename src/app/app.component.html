@@ -1,4 +1,5 @@
 <app-popup></app-popup>
+<app-global-loader></app-global-loader>
 
 <div
   class="floating-island"
@@ -146,7 +147,9 @@
   }
 </main>
 
-<app-projects-section
-  [heading]="projectsSectionHeading"
-  [portfolioId]="portfolioId"
-></app-projects-section>
+@if (!isBasicLoading) {
+  <app-projects-section
+    [heading]="projectsSectionHeading"
+    [portfolioId]="portfolioId"
+  ></app-projects-section>
+}

@@ -1,0 +1,10 @@
+@if (loaderService.state().visible) {
+  <div class="mn-loader-overlay" role="status" aria-live="polite" [attr.aria-label]="loaderService.state().label | translate">
+    <div class="mn-loader-shell" aria-hidden="true">
+      <div class="mn-loader-ring"></div>
+      <div class="mn-loader-core">{{ loaderService.state().signature }}</div>
+    </div>
+    <div class="mn-loader-text">{{ loaderService.state().label | translate }}</div>
+  </div>
+}
+

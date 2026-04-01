@@ -2,8 +2,10 @@ import { Component, ElementRef, HostListener, OnDestroy, OnInit, PLATFORM_ID, Re
 import { isPlatformBrowser } from '@angular/common';
 import { ApiService } from './services/api.service';
 import { PopupService } from './services/popup.service';
+import { LoaderService } from './services/loader.service';
 import { TranslateService } from './services/translate.service';
 import { PopupComponent } from './shared/components/popup/popup.component';
+import { GlobalLoaderComponent } from './shared/components/global-loader/global-loader.component';
 import { TranslatePipe } from './pipes/translate.pipe';
 import { Language, PortfolioBasic, Section, TranslationKeyValue } from './interfaces';
 import { ProjectsSectionComponent } from './sections/projects-section/projects-section.component';
@@ -22,13 +24,14 @@ type ThemeMode = 'light' | 'dark';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PopupComponent, TranslatePipe, ProjectsSectionComponent],
+  imports: [PopupComponent, GlobalLoaderComponent, TranslatePipe, ProjectsSectionComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';
-  readonly portfolioId = DEFAULT_PORTFOLIO_ID;
+  portfolioId = DEFAULT_PORTFOLIO_ID;
+  isBasicLoading = true;
   basicDetails: PortfolioBasic = {
     ...BASIC_DETAILS_FALLBACK,
     fullName: '',
@@ -60,6 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
   languageOptions: LanguageOption[] = [...LANGUAGE_OPTIONS];
   private readonly apiService = inject(ApiService);
   private readonly popupService = inject(PopupService);
+  private readonly loaderService = inject(LoaderService);
   private readonly translateService = inject(TranslateService);
   private readonly renderer = inject(Renderer2);
   private readonly elementRef = inject(ElementRef<HTMLElement>);
@@ -82,14 +86,20 @@ export class AppComponent implements OnInit, OnDestroy {
     this.loadLanguageOptions();
     this.updateProfileIslandMode();
     this.startHeadlineAnimation();
+    this.loaderService.show({ label: 'Loading profile...', signature: 'MN' });
 
     this.apiService.getPortfolioBasic(DEFAULT_PORTFOLIO_ID).subscribe(data => {
       this.basicDetails = data;
+      this.portfolioId = data.id || DEFAULT_PORTFOLIO_ID;
+      this.isBasicLoading = false;
+      this.loaderService.hide();
       this.profileImageIndex = 0;
       this.startRoleTypingAnimation();
       this.startHeadlineAnimation();
     }, error => {
       console.error('Error fetching basic details:', error);
+      this.isBasicLoading = false;
+      this.loaderService.hide();
       this.popupService.failure('Failed to load profile details. Please try again.');
     });
 
@@ -126,6 +136,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.headlineFrameId !== null && isPlatformBrowser(this.platformId)) {
       cancelAnimationFrame(this.headlineFrameId);
     }
+    this.loaderService.hide();
   }
 
   @HostListener('document:click', ['$event'])

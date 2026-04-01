@@ -1,15 +1,15 @@
 <section class="portfolio-section projects-section">
-  <div class="section-heading-wrap">
-    <span class="section-heading-line" aria-hidden="true"></span>
-    <h2 class="section-heading">{{ heading | translate }}</h2>
-    <span class="section-heading-line" aria-hidden="true"></span>
-  </div>
-
   @if (isLoading) {
     <div class="projects-loading">{{ 'Loading projects...' | translate }}</div>
   } @else if (loadError) {
     <div class="projects-error">{{ loadError | translate }}</div>
   } @else if (projects.length > 0) {
+    <div class="section-heading-wrap">
+      <span class="section-heading-line" aria-hidden="true"></span>
+      <h2 class="section-heading">{{ heading | translate }}</h2>
+      <span class="section-heading-line" aria-hidden="true"></span>
+    </div>
+
     <div class="projects-carousel">
       <button
         type="button"
