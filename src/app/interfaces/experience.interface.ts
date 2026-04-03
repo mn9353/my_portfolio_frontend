@@ -4,6 +4,7 @@ export interface Experience {
   id: number;
   portfolioId: number;
   companyName: string;
+  companyLogo: string | null;
   role: string;
   shortDescription: string | null;
   detailedDescription: string[] | string | null;

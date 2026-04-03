@@ -1,4 +1,4 @@
-<section class="portfolio-section experience-section">
+﻿<section class="portfolio-section experience-section">
   @if (isLoading) {
     <div class="experience-feedback">{{ 'Loading experience...' | translate }}</div>
   } @else if (loadError) {
@@ -11,16 +11,34 @@
     </div>
 
     <div class="experience-timeline" role="list">
-      @for (item of experiences; track item.id) {
-        <article class="experience-card" role="listitem">
+      @for (item of experiences; track item.id; let i = $index) {
+        <article class="experience-card" role="listitem" [style.--item-index]="i">
           <header class="experience-top">
-            <div>
-              <h3 class="experience-role">{{ item.role | translate }}</h3>
-              <p class="experience-company">{{ item.companyName | translate }}</p>
+            <div class="experience-company-wrap">
+              <div class="company-logo" [attr.aria-label]="item.companyName | translate">
+                @if (getCompanyLogoSrc(item)) {
+                  <img
+                    [src]="getCompanyLogoSrc(item)"
+                    [alt]="item.companyName | translate"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                    (error)="onCompanyLogoError(item.id)"
+                  />
+                } @else {
+                  <span>{{ getCompanyMonogram(item) }}</span>
+                }
+              </div>
+
+              <div>
+                <h3 class="experience-role">{{ item.role | translate }}</h3>
+                <p class="experience-company">{{ item.companyName | translate }}</p>
+              </div>
             </div>
 
             <div class="experience-badges">
-              <span class="experience-badge type">{{ getEmploymentTypeLabel(item) | translate }}</span>
+              <span class="experience-badge type" [class]="'experience-badge type ' + getEmploymentTypeClass(item)">
+                {{ getEmploymentTypeLabel(item) | translate }}
+              </span>
               @if (item.isCurrent) {
                 <span class="experience-badge current">{{ 'Current' | translate }}</span>
               }
@@ -41,12 +59,18 @@
             }
           </div>
 
-          @if (getExperiencePoints(item).length > 0) {
+          @if (getVisibleExperiencePoints(item).length > 0) {
             <ul class="experience-points">
-              @for (point of getExperiencePoints(item); track point) {
+              @for (point of getVisibleExperiencePoints(item); track point) {
                 <li>{{ point | translate }}</li>
               }
             </ul>
+          }
+
+          @if (hasHiddenPoints(item)) {
+            <button type="button" class="toggle-points" (click)="togglePoints(item)">
+              {{ (isExpanded(item) ? 'Show less' : 'Show more') | translate }}
+            </button>
           }
         </article>
       }
