@@ -6,7 +6,7 @@ export interface Experience {
   companyName: string;
   role: string;
   shortDescription: string | null;
-  detailedDescription: string | null;
+  detailedDescription: string[] | string | null;
   technologiesUsed: TechnologyItem[] | null;
   location: string | null;
   employmentType: string | null;

@@ -1,0 +1,43 @@
+<section class="portfolio-section skills-minimal-section">
+  @if (isLoading) {
+    <div class="skills-feedback">{{ 'Loading skills...' | translate }}</div>
+  } @else if (loadError) {
+    <div class="skills-feedback">{{ loadError | translate }}</div>
+  } @else if (hasSkills) {
+    <div class="section-heading-wrap">
+      <span class="section-heading-line" aria-hidden="true"></span>
+      <h2 class="section-heading">{{ heading | translate }}</h2>
+      <span class="section-heading-line" aria-hidden="true"></span>
+    </div>
+
+    <div class="skills-grid">
+      @for (group of skillGroups; track group.category) {
+        <section class="skill-group">
+          <h3 class="group-title">{{ group.category | translate }}</h3>
+
+          <div class="skill-list">
+            @for (skill of group.items; track skill.id) {
+              <article class="skill-item">
+                <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
+                  @if (getSkillLogoSrc(skill)) {
+                    <img
+                      [src]="getSkillLogoSrc(skill)"
+                      [alt]="skill.skillName | translate"
+                      loading="lazy"
+                      referrerpolicy="no-referrer"
+                      (error)="onSkillLogoError(skill.id)"
+                    />
+                  } @else {
+                    <span>{{ getSkillMonogram(skill) }}</span>
+                  }
+                </div>
+
+                <span class="skill-name">{{ skill.skillName | translate }}</span>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</section>

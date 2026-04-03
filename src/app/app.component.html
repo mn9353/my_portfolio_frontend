@@ -147,9 +147,23 @@
   }
 </main>
 
-@if (!isBasicLoading) {
-  <app-projects-section
-    [heading]="projectsSectionHeading"
-    [portfolioId]="portfolioId"
-  ></app-projects-section>
+@if (!isBasicLoading && !isSectionsLoading) {
+  @for (section of renderableSections; track section.trackKey) {
+    @if (section.type === 'skills') {
+      <app-skills-minimal-section
+        [heading]="section.heading"
+        [portfolioId]="portfolioId"
+      ></app-skills-minimal-section>
+    } @else if (section.type === 'projects') {
+      <app-projects-section
+        [heading]="section.heading"
+        [portfolioId]="portfolioId"
+      ></app-projects-section>
+    } @else if (section.type === 'experience') {
+      <app-experience-section
+        [heading]="section.heading"
+        [portfolioId]="portfolioId"
+      ></app-experience-section>
+    }
+  }
 }

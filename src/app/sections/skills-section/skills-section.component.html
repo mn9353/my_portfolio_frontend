@@ -1,0 +1,65 @@
+<section class="portfolio-section skills-section">
+  @if (isLoading) {
+    <div class="skills-feedback">{{ 'Loading skills...' | translate }}</div>
+  } @else if (loadError) {
+    <div class="skills-feedback">{{ loadError | translate }}</div>
+  } @else if (hasSkills) {
+    <div class="section-heading-wrap">
+      <span class="section-heading-line" aria-hidden="true"></span>
+      <h2 class="section-heading">{{ heading | translate }}</h2>
+      <span class="section-heading-line" aria-hidden="true"></span>
+    </div>
+
+    <p class="section-subheading">
+      {{ 'Technologies I use to design reliable, scalable and production-ready products.' | translate }}
+    </p>
+
+    <div class="skills-shell">
+      @for (group of skillGroups; track group.category) {
+        <article class="category-band">
+          <header class="category-header">
+            <h3 class="category-title">{{ group.category | translate }}</h3>
+            <span class="category-count">{{ group.items.length }} {{ 'skills' | translate }}</span>
+          </header>
+
+          <div class="skills-flow">
+            @for (skill of group.items; track skill.id) {
+              <div class="skill-pill" [style.--skill-accent]="getSkillAccent(skill, group.category)">
+                <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
+                  @if (getSkillLogoSrc(skill)) {
+                    <img
+                      [src]="getSkillLogoSrc(skill)"
+                      [alt]="skill.skillName | translate"
+                      loading="lazy"
+                      referrerpolicy="no-referrer"
+                      (error)="onSkillLogoError(skill.id)"
+                    />
+                  } @else {
+                    <span>{{ getSkillMonogram(skill) }}</span>
+                  }
+                </div>
+
+                <div class="skill-content">
+                  <h4 class="skill-name">{{ skill.skillName | translate }}</h4>
+
+                  <div class="skill-meta">
+                    @if (skill.proficiencyLevel) {
+                      <span class="meta-text">{{ skill.proficiencyLevel | translate }}</span>
+                    }
+                    @if (skill.yearsOfExperience !== null) {
+                      <span class="meta-dot" aria-hidden="true"></span>
+                      <span class="meta-text">{{ skill.yearsOfExperience }}+ {{ 'yrs' | translate }}</span>
+                    }
+                    @if (!skill.proficiencyLevel && skill.yearsOfExperience === null) {
+                      <span class="meta-text">{{ (skill.shortForm || 'Core') | translate }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,55 @@
+<section class="portfolio-section experience-section">
+  @if (isLoading) {
+    <div class="experience-feedback">{{ 'Loading experience...' | translate }}</div>
+  } @else if (loadError) {
+    <div class="experience-feedback">{{ loadError | translate }}</div>
+  } @else if (hasExperiences) {
+    <div class="section-heading-wrap">
+      <span class="section-heading-line" aria-hidden="true"></span>
+      <h2 class="section-heading">{{ heading | translate }}</h2>
+      <span class="section-heading-line" aria-hidden="true"></span>
+    </div>
+
+    <div class="experience-timeline" role="list">
+      @for (item of experiences; track item.id) {
+        <article class="experience-card" role="listitem">
+          <header class="experience-top">
+            <div>
+              <h3 class="experience-role">{{ item.role | translate }}</h3>
+              <p class="experience-company">{{ item.companyName | translate }}</p>
+            </div>
+
+            <div class="experience-badges">
+              <span class="experience-badge type">{{ getEmploymentTypeLabel(item) | translate }}</span>
+              @if (item.isCurrent) {
+                <span class="experience-badge current">{{ 'Current' | translate }}</span>
+              }
+            </div>
+          </header>
+
+          <div class="experience-meta">
+            <span class="meta-item">
+              <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+              {{ getDurationLabel(item) | translate }}
+            </span>
+
+            @if (item.location) {
+              <span class="meta-item">
+                <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                {{ item.location | translate }}
+              </span>
+            }
+          </div>
+
+          @if (getExperiencePoints(item).length > 0) {
+            <ul class="experience-points">
+              @for (point of getExperiencePoints(item); track point) {
+                <li>{{ point | translate }}</li>
+              }
+            </ul>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

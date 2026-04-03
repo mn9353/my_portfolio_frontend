@@ -8,7 +8,9 @@ import { PopupComponent } from './shared/components/popup/popup.component';
 import { GlobalLoaderComponent } from './shared/components/global-loader/global-loader.component';
 import { TranslatePipe } from './pipes/translate.pipe';
 import { Language, PortfolioBasic, Section, TranslationKeyValue } from './interfaces';
+import { ExperienceSectionComponent } from './sections/experience-section/experience-section.component';
 import { ProjectsSectionComponent } from './sections/projects-section/projects-section.component';
+import { SkillsMinimalSectionComponent } from './sections/skills-minimal-section/skills-minimal-section.component';
 import {
   BASIC_DETAILS_FALLBACK,
   DEFAULT_PORTFOLIO_ID,
@@ -20,11 +22,25 @@ import {
 } from './constants/constant';
 
 type ThemeMode = 'light' | 'dark';
+type RenderableSectionType = 'skills' | 'projects' | 'experience';
+
+interface RenderableSection {
+  type: RenderableSectionType;
+  heading: string;
+  trackKey: string;
+}
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PopupComponent, GlobalLoaderComponent, TranslatePipe, ProjectsSectionComponent],
+  imports: [
+    PopupComponent,
+    GlobalLoaderComponent,
+    TranslatePipe,
+    SkillsMinimalSectionComponent,
+    ProjectsSectionComponent,
+    ExperienceSectionComponent
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -50,6 +66,7 @@ export class AppComponent implements OnInit, OnDestroy {
     profileImageUrl: ''
   };
   sections: Section[] = [];
+  isSectionsLoading = true;
   isMenuOpen = false;
   isLanguageMenuOpen = false;
   currentTheme: ThemeMode = DEFAULT_THEME_MODE;
@@ -107,9 +124,11 @@ export class AppComponent implements OnInit, OnDestroy {
       this.sections = data
         .filter(section => section.isVisible)
         .sort((a, b) => a.displayOrder - b.displayOrder);
+      this.isSectionsLoading = false;
     }, error => {
       console.error('Error fetching sections:', error);
       this.popupService.failure('Unable to load menu sections right now.');
+      this.isSectionsLoading = false;
     });
 
   }
@@ -205,12 +224,38 @@ export class AppComponent implements OnInit, OnDestroy {
     return this.sections.map(section => section.title || section.sectionKey);
   }
 
-  get projectsSectionHeading(): string {
-    const projectsSection = this.sections.find(section =>
-      (section.sectionKey || '').toLowerCase().includes('project')
-    );
-    const subtitle = (projectsSection?.subtitle || '').trim();
-    return subtitle || 'My Projects';
+  get renderableSections(): RenderableSection[] {
+    const mapped = this.sections
+      .map((section) => {
+        const type = this.resolveRenderableSectionType(section.sectionKey);
+        if (!type) {
+          return null;
+        }
+
+        const fallbackHeading = type === 'projects'
+          ? 'My Projects'
+          : type === 'experience'
+            ? 'Experience'
+            : 'Skills & Tools';
+        const heading = (section.subtitle || '').trim() || fallbackHeading;
+
+        return {
+          type,
+          heading,
+          trackKey: `${section.sectionKey}-${section.displayOrder}`
+        } satisfies RenderableSection;
+      })
+      .filter((section): section is RenderableSection => section !== null);
+
+    if (mapped.length > 0) {
+      return mapped;
+    }
+
+    return [
+      { type: 'skills', heading: 'Skills & Tools', trackKey: 'skills-fallback' },
+      { type: 'projects', heading: 'My Projects', trackKey: 'projects-fallback' },
+      { type: 'experience', heading: 'Experience', trackKey: 'experience-fallback' }
+    ];
   }
 
   get normalizedFullName(): string {
@@ -566,6 +611,27 @@ export class AppComponent implements OnInit, OnDestroy {
   private startRoleTypingAnimation(): void {
     const role = this.basicDetails.role || 'Developer';
     this.displayedRoleText = this.isProfileCompressed ? '' : role;
+  }
+
+  private resolveRenderableSectionType(sectionKey: string | null): RenderableSectionType | null {
+    const normalized = (sectionKey || '').trim().toLowerCase();
+    if (!normalized) {
+      return null;
+    }
+
+    if (normalized.includes('skill')) {
+      return 'skills';
+    }
+
+    if (normalized.includes('project')) {
+      return 'projects';
+    }
+
+    if (normalized.includes('experience')) {
+      return 'experience';
+    }
+
+    return null;
   }
 
   private splitHeadlineIntoLines(text: string): string[] {

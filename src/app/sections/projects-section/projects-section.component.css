@@ -34,8 +34,17 @@
 .section-heading-line {
   flex: 1;
   max-width: 8rem;
-  height: 1px;
-  background: color-mix(in srgb, var(--text-color) 20%, transparent);
+  height: 3px;
+  background: color-mix(in srgb, var(--text-color) 28%, transparent);
+  opacity: 0.9;
+}
+
+.section-heading-wrap > .section-heading-line:first-child {
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+}
+
+.section-heading-wrap > .section-heading-line:last-child {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .projects-loading,
@@ -395,6 +404,18 @@
   }
 
   .section-heading-line {
-    max-width: 4.8rem;
-  }
+  flex: 1;
+  max-width: 8rem;
+  height: 3px;
+  background: color-mix(in srgb, var(--text-color) 28%, transparent);
+  opacity: 0.9;
+}
+
+.section-heading-wrap > .section-heading-line:first-child {
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+}
+
+.section-heading-wrap > .section-heading-line:last-child {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
 }
