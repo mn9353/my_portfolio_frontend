@@ -517,6 +517,20 @@
   outline: none;
 }
 
+.portfolio-footer {
+  width: min(96vw, 128rem);
+  margin: 2.4rem auto 1.3rem;
+  text-align: center;
+}
+
+.portfolio-footer p {
+  margin: 0;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.84rem;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--text-color) 56%, transparent);
+}
+
 @keyframes panelIn {
   from {
     opacity: 0;

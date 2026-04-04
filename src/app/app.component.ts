@@ -7,13 +7,14 @@ import { TranslateService } from './services/translate.service';
 import { PopupComponent } from './shared/components/popup/popup.component';
 import { GlobalLoaderComponent } from './shared/components/global-loader/global-loader.component';
 import { TranslatePipe } from './pipes/translate.pipe';
-import { Language, PortfolioBasic, Section, TranslationKeyValue } from './interfaces';
+import { Language, PortfolioBasic, Project, ProjectDetailsResponse, Section, TranslationKeyValue } from './interfaces';
 import { AboutSectionComponent } from './sections/about-section/about-section.component';
 import { ExperienceSectionComponent } from './sections/experience-section/experience-section.component';
 import { ProjectsSectionComponent } from './sections/projects-section/projects-section.component';
 import { SkillsMinimalSectionComponent } from './sections/skills-minimal-section/skills-minimal-section.component';
 import { ContactCtaSectionComponent } from './sections/contact-cta-section/contact-cta-section.component';
 import { TestimonialsSectionComponent } from './sections/testimonials-section/testimonials-section.component';
+import { ProjectDetailsPageComponent } from './sections/project-details-page/project-details-page.component';
 import {
   BASIC_DETAILS_FALLBACK,
   DEFAULT_PORTFOLIO_ID,
@@ -49,7 +50,8 @@ interface RenderableSection {
     ProjectsSectionComponent,
     ExperienceSectionComponent,
     ContactCtaSectionComponent,
-    TestimonialsSectionComponent
+    TestimonialsSectionComponent,
+    ProjectDetailsPageComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -90,6 +92,11 @@ export class AppComponent implements OnInit, OnDestroy {
   headlineLines: string[] = [];
   displayedHeadlineLines: string[] = [];
   displayedRoleText = '';
+  activeProjectSlug: string | null = null;
+  activeProject: Project | null = null;
+  activeProjectDetails: ProjectDetailsResponse | null = null;
+  isProjectDetailsLoading = false;
+  projectDetailsError = '';
   languageOptions: LanguageOption[] = [...LANGUAGE_OPTIONS];
   private readonly apiService = inject(ApiService);
   private readonly popupService = inject(PopupService);
@@ -106,9 +113,11 @@ export class AppComponent implements OnInit, OnDestroy {
   private profileCompressTimer: ReturnType<typeof setTimeout> | null = null;
   private profileFadeTimer: ReturnType<typeof setTimeout> | null = null;
   private roleTypingFrameId: number | null = null;
+  private readonly projectDetailsCache = new Map<number, ProjectDetailsResponse>();
   isProfileFadingOut = false;
 
   ngOnInit() {
+    this.activeProjectSlug = this.readProjectSlugFromPath();
     this.initializeTheme();
     this.initializeLanguage();
     this.translateService.setLanguage(this.currentLanguageCode);
@@ -126,6 +135,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.profileImageIndex = 0;
       this.startRoleTypingAnimation();
       this.startHeadlineAnimation();
+      if (this.activeProjectSlug) {
+        this.resolveProjectDetailsBySlug(this.activeProjectSlug, this.portfolioId);
+      }
     }, error => {
       console.error('Error fetching basic details:', error);
       this.isBasicLoading = false;
@@ -231,6 +243,9 @@ export class AppComponent implements OnInit, OnDestroy {
   selectSection(event?: MouseEvent): void {
     event?.stopPropagation();
     this.isMenuOpen = false;
+    if (this.isProjectDetailsRoute) {
+      this.goToHomeFromDetails();
+    }
   }
 
   get sectionMenuItems(): string[] {
@@ -280,8 +295,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     return [
       { type: 'about', heading: 'About Me', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'about-fallback' },
-      { type: 'skills', heading: 'Skills & Tools', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'skills-fallback' },
-      { type: 'projects', heading: 'My Projects', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'projects-fallback' },
+      { type: 'skills', heading: 'Skills & Tools', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'skills-fallback' },
+      { type: 'projects', heading: 'My Projects', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'projects-fallback' },
       { type: 'experience', heading: 'Experience', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'experience-fallback' },
       { type: 'testimonials', heading: 'Testimonials', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'testimonials-fallback' },
       { type: 'contact', heading: 'Let\'s Connect', description: '', buttonText: 'Get in touch', buttonUrl: '', sectionType: null, trackKey: 'contact-fallback' }
@@ -337,6 +352,18 @@ export class AppComponent implements OnInit, OnDestroy {
       return this.basicDetails.role || 'Developer';
     }
     return this.displayedRoleText;
+  }
+
+  get isProjectDetailsRoute(): boolean {
+    return !!this.activeProjectSlug;
+  }
+
+  get footerYear(): number {
+    return new Date().getFullYear();
+  }
+
+  get footerOwnerName(): string {
+    return (this.basicDetails.fullName || '').trim() || 'Manoj N';
   }
 
   get profileImageSrc(): string | null {
@@ -478,6 +505,18 @@ export class AppComponent implements OnInit, OnDestroy {
       this.updateProfileIslandMode();
       this.reflowHeadlineWithoutAnimation();
     }, 150);
+  }
+
+  @HostListener('window:popstate')
+  onWindowPopState(): void {
+    const slug = this.readProjectSlugFromPath();
+    if (!slug) {
+      this.clearProjectDetailsState();
+      return;
+    }
+
+    this.activeProjectSlug = slug;
+    this.resolveProjectDetailsBySlug(slug, this.portfolioId || DEFAULT_PORTFOLIO_ID);
   }
 
   onProfileHoverEnter(): void {
@@ -772,6 +811,123 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch {
       return null;
     }
+  }
+
+  onProjectViewDetails(project: Project): void {
+    const slug = this.createProjectSlug(project);
+    this.activeProjectSlug = slug;
+    this.navigateToPath(`/${encodeURIComponent(slug)}`);
+    this.loadProjectDetails(project);
+  }
+
+  goToHomeFromDetails(): void {
+    this.clearProjectDetailsState();
+    this.navigateToPath('/');
+  }
+
+  private clearProjectDetailsState(): void {
+    this.activeProjectSlug = null;
+    this.activeProject = null;
+    this.activeProjectDetails = null;
+    this.projectDetailsError = '';
+    this.isProjectDetailsLoading = false;
+  }
+
+  private resolveProjectDetailsBySlug(slug: string, portfolioId: number): void {
+    this.isProjectDetailsLoading = true;
+    this.projectDetailsError = '';
+    this.activeProjectDetails = null;
+
+    this.apiService.getPortfolioProjects(portfolioId).subscribe({
+      next: (projects) => {
+        const matched = projects.find(project => this.matchesProjectSlug(project, slug)) ?? null;
+        if (!matched) {
+          this.activeProject = null;
+          this.isProjectDetailsLoading = false;
+          this.projectDetailsError = 'Project not found.';
+          return;
+        }
+
+        this.loadProjectDetails(matched);
+      },
+      error: (error) => {
+        console.error('Error resolving project by slug:', error);
+        this.activeProject = null;
+        this.activeProjectDetails = null;
+        this.isProjectDetailsLoading = false;
+        this.projectDetailsError = 'Unable to load project right now.';
+      }
+    });
+  }
+
+  private loadProjectDetails(project: Project): void {
+    this.activeProject = project;
+    this.projectDetailsError = '';
+
+    const cached = this.projectDetailsCache.get(project.id);
+    if (cached) {
+      this.activeProjectDetails = cached;
+      this.isProjectDetailsLoading = false;
+      return;
+    }
+
+    this.isProjectDetailsLoading = true;
+    this.activeProjectDetails = null;
+
+    this.apiService.getPortfolioProjectDetails(project.id).subscribe({
+      next: (details) => {
+        this.projectDetailsCache.set(project.id, details);
+        this.activeProjectDetails = details;
+        this.isProjectDetailsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching project details:', error);
+        this.activeProjectDetails = null;
+        this.isProjectDetailsLoading = false;
+        this.projectDetailsError = 'Project details API not connected yet. Showing summary for now.';
+      }
+    });
+  }
+
+  private createProjectSlug(project: Project): string {
+    const primary = (project.projectKey || '').trim() || (project.title || '').trim() || `project-${project.id}`;
+    const slug = this.toSlug(primary);
+    return slug || `project-${project.id}`;
+  }
+
+  private matchesProjectSlug(project: Project, slug: string): boolean {
+    const target = this.toSlug(slug);
+    const byKey = this.toSlug((project.projectKey || '').trim());
+    const byTitle = this.toSlug((project.title || '').trim());
+    return target === byKey || target === byTitle;
+  }
+
+  private toSlug(value: string): string {
+    return (value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private readProjectSlugFromPath(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    if (!path || path.toLowerCase() === 'index.html') {
+      return null;
+    }
+
+    return decodeURIComponent(path);
+  }
+
+  private navigateToPath(path: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    window.history.pushState({}, '', path);
   }
 }
 

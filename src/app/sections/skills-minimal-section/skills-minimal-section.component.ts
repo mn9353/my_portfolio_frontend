@@ -18,6 +18,7 @@ interface SkillCategoryGroup {
 export class SkillsMinimalSectionComponent implements OnChanges {
   @Input() heading = 'Skills & Tools';
   @Input() portfolioId!: number;
+  @Input() sectionType: string | null = null;
 
   skillGroups: SkillCategoryGroup[] = [];
   isLoading = false;
@@ -35,6 +36,25 @@ export class SkillsMinimalSectionComponent implements OnChanges {
 
   get hasSkills(): boolean {
     return this.skillGroups.length > 0;
+  }
+
+  get normalizedSectionType(): 'cards' | 'grid' | 'timeline' | 'moving cards' {
+    const raw = (this.sectionType || '').trim().toLowerCase();
+    if (raw === 'grid' || raw === 'timeline' || raw === 'moving cards' || raw === 'cards') {
+      return raw;
+    }
+    return 'cards';
+  }
+
+  get allSkills(): Skill[] {
+    return this.skillGroups.flatMap(group => group.items);
+  }
+
+  get movingSkills(): Skill[] {
+    if (this.allSkills.length === 0) {
+      return [];
+    }
+    return [...this.allSkills, ...this.allSkills];
   }
 
   getSkillLogoSrc(skill: Skill): string | null {

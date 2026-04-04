@@ -14,7 +14,7 @@
 
     <p class="cta-description">{{ normalizedDescription | translate }}</p>
 
-    <a class="cta-button" [href]="primaryCtaHref" target="_blank" rel="noopener noreferrer">
+    <a class="cta-button" [href]="primaryCtaHref" target="_blank" rel="noopener noreferrer" (click)="onPrimaryCtaClick($event)">
       <span class="cta-button-text">{{ (buttonText || 'Get in touch') | translate }}</span>
       <span class="cta-arrow-wrapper" aria-hidden="true">
         <span class="cta-arrow material-symbols-outlined">arrow_right_alt</span>
@@ -23,7 +23,7 @@
 
     @if (email) {
       <div class="cta-contact-line">
-        <a class="cta-email" [href]="'mailto:' + email">{{ email }}</a>
+        <a class="cta-email" [href]="emailHref" (click)="onEmailClick($event)">{{ email }}</a>
         <button
           type="button"
           class="copy-chip"

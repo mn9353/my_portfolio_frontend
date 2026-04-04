@@ -1,4 +1,4 @@
-ï»¿<app-popup></app-popup>
+<app-popup></app-popup>
 <app-global-loader></app-global-loader>
 
 <div
@@ -109,95 +109,111 @@
   }
 </div>
 
-<main class="hero-content">
-  @if (basicDetails.openToWork && openToWorkText) {
-    <div class="open-to-work-island">
-      <span class="open-dot" aria-hidden="true"></span>
-      <span class="open-text">{{ openToWorkText | translate }}</span>
-    </div>
-  }
+@if (isProjectDetailsRoute) {
+  <app-project-details-page
+    [project]="activeProject"
+    [details]="activeProjectDetails"
+    [isLoading]="isProjectDetailsLoading"
+    [error]="projectDetailsError"
+    (backRequested)="goToHomeFromDetails()"
+  ></app-project-details-page>
+} @else {
+  <main class="hero-content">
+    @if (basicDetails.openToWork && openToWorkText) {
+      <div class="open-to-work-island">
+        <span class="open-dot" aria-hidden="true"></span>
+        <span class="open-text">{{ openToWorkText | translate }}</span>
+      </div>
+    }
 
-  @if (displayedHeadlineLines.length > 0) {
-    <div class="hero-headline" role="heading" aria-level="1">
-      @for (line of displayedHeadlineLines; track $index) {
-        <span class="headline-line">{{ line }}</span>
+    @if (displayedHeadlineLines.length > 0) {
+      <div class="hero-headline" role="heading" aria-level="1">
+        @for (line of displayedHeadlineLines; track $index) {
+          <span class="headline-line">{{ line }}</span>
+        }
+      </div>
+    }
+
+    @if (basicDetails.subheadline) {
+      <div class="hero-subheadline">{{ basicDetails.subheadline | translate }}</div>
+    }
+
+    @if (basicDetails.resumeUrl) {
+      <div class="hero-resume">
+        <a
+          class="resume-button"
+          [href]="basicDetails.resumeUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="'Download resume' | translate"
+        >
+          <span class="resume-text">{{ 'Download Resume' | translate }}</span>
+          <span class="resume-arrow-wrapper" aria-hidden="true">
+            <span class="resume-arrow material-symbols-outlined">arrow_right_alt</span>
+          </span>
+        </a>
+      </div>
+    }
+  </main>
+
+  @if (!isBasicLoading && !isSectionsLoading) {
+    @for (section of renderableSections; track section.trackKey) {
+      @if (section.type === 'about') {
+        <app-about-section
+          [heading]="section.heading"
+          [sectionDescription]="section.description"
+          [fullName]="basicDetails.fullName"
+          [aboutText]="basicDetails.aboutMe || ''"
+          [profileImageUrl]="profileImageSrc"
+          [role]="basicDetails.role"
+          [location]="basicDetails.location"
+          [currentCompany]="basicDetails.currentCompany"
+          [totalExperience]="basicDetails.totalExperience"
+          [openToWork]="basicDetails.openToWork"
+        ></app-about-section>
+      } @else if (section.type === 'skills') {
+        <app-skills-minimal-section
+          [heading]="section.heading"
+          [sectionType]="section.sectionType"
+          [portfolioId]="portfolioId"
+        ></app-skills-minimal-section>
+      } @else if (section.type === 'projects') {
+        <app-projects-section
+          [heading]="section.heading"
+          [sectionType]="section.sectionType"
+          [portfolioId]="portfolioId"
+          (viewDetailsRequested)="onProjectViewDetails($event)"
+        ></app-projects-section>
+      } @else if (section.type === 'experience') {
+        <app-experience-section
+          [heading]="section.heading"
+          [portfolioId]="portfolioId"
+        ></app-experience-section>
+      } @else if (section.type === 'testimonials') {
+        <app-testimonials-section
+          [heading]="section.heading"
+          [description]="section.description"
+          [sectionType]="section.sectionType"
+          [portfolioId]="portfolioId"
+        ></app-testimonials-section>
+      } @else if (section.type === 'contact') {
+        <app-contact-cta-section
+          [heading]="section.heading"
+          [description]="section.description"
+          [buttonText]="section.buttonText"
+          [buttonUrl]="section.buttonUrl"
+          [availabilityText]="openToWorkText"
+          [email]="basicDetails.email"
+          [phoneNumber]="basicDetails.phoneNumber"
+          [linkedinUrl]="basicDetails.linkedinUrl"
+          [githubUrl]="basicDetails.githubUrl"
+          [portfolioId]="portfolioId"
+        ></app-contact-cta-section>
       }
-    </div>
-  }
-
-  @if (basicDetails.subheadline) {
-    <div class="hero-subheadline">{{ basicDetails.subheadline | translate }}</div>
-  }
-
-  @if (basicDetails.resumeUrl) {
-    <div class="hero-resume">
-      <a
-        class="resume-button"
-        [href]="basicDetails.resumeUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        [attr.aria-label]="'Download resume' | translate"
-      >
-        <span class="resume-text">{{ 'Download Resume' | translate }}</span>
-        <span class="resume-arrow-wrapper" aria-hidden="true">
-          <span class="resume-arrow material-symbols-outlined">arrow_right_alt</span>
-        </span>
-      </a>
-    </div>
-  }
-</main>
-
-@if (!isBasicLoading && !isSectionsLoading) {
-  @for (section of renderableSections; track section.trackKey) {
-    @if (section.type === 'about') {
-      <app-about-section
-        [heading]="section.heading"
-        [sectionDescription]="section.description"
-        [fullName]="basicDetails.fullName"
-        [aboutText]="basicDetails.aboutMe || ''"
-        [profileImageUrl]="profileImageSrc"
-        [role]="basicDetails.role"
-        [location]="basicDetails.location"
-        [currentCompany]="basicDetails.currentCompany"
-        [totalExperience]="basicDetails.totalExperience"
-        [openToWork]="basicDetails.openToWork"
-      ></app-about-section>
-    } @else if (section.type === 'skills') {
-      <app-skills-minimal-section
-        [heading]="section.heading"
-        [portfolioId]="portfolioId"
-      ></app-skills-minimal-section>
-    } @else if (section.type === 'projects') {
-      <app-projects-section
-        [heading]="section.heading"
-        [portfolioId]="portfolioId"
-      ></app-projects-section>
-    } @else if (section.type === 'experience') {
-      <app-experience-section
-        [heading]="section.heading"
-        [portfolioId]="portfolioId"
-      ></app-experience-section>
-    } @else if (section.type === 'testimonials') {
-      <app-testimonials-section
-        [heading]="section.heading"
-        [description]="section.description"
-        [sectionType]="section.sectionType"
-        [portfolioId]="portfolioId"
-      ></app-testimonials-section>
-    } @else if (section.type === 'contact') {
-      <app-contact-cta-section
-        [heading]="section.heading"
-        [description]="section.description"
-        [buttonText]="section.buttonText"
-        [buttonUrl]="section.buttonUrl"
-        [availabilityText]="openToWorkText"
-        [email]="basicDetails.email"
-        [phoneNumber]="basicDetails.phoneNumber"
-        [linkedinUrl]="basicDetails.linkedinUrl"
-        [githubUrl]="basicDetails.githubUrl"
-        [portfolioId]="portfolioId"
-      ></app-contact-cta-section>
     }
   }
-}
 
+  <footer class="portfolio-footer">
+    <p>© {{ footerYear }} {{ footerOwnerName | translate }}</p>
+  </footer>
+}

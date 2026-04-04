@@ -4,6 +4,7 @@ export * from './education.interface';
 export * from './experience.interface';
 export * from './language.interface';
 export * from './portfolio-basic.interface';
+export * from './project-details.interface';
 export * from './project.interface';
 export * from './section.interface';
 export * from './skill.interface';

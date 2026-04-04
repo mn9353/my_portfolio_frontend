@@ -10,34 +10,116 @@
       <span class="section-heading-line" aria-hidden="true"></span>
     </div>
 
-    <div class="skills-grid">
-      @for (group of skillGroups; track group.category) {
-        <section class="skill-group">
-          <h3 class="group-title">{{ group.category | translate }}</h3>
+    @if (normalizedSectionType === 'cards') {
+      <div class="skills-grid">
+        @for (group of skillGroups; track group.category) {
+          <section class="skill-group">
+            <h3 class="group-title">{{ group.category | translate }}</h3>
 
-          <div class="skill-list">
-            @for (skill of group.items; track skill.id) {
-              <article class="skill-item">
-                <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
-                  @if (getSkillLogoSrc(skill)) {
-                    <img
-                      [src]="getSkillLogoSrc(skill)"
-                      [alt]="skill.skillName | translate"
-                      loading="lazy"
-                      referrerpolicy="no-referrer"
-                      (error)="onSkillLogoError(skill.id)"
-                    />
-                  } @else {
-                    <span>{{ getSkillMonogram(skill) }}</span>
-                  }
-                </div>
+            <div class="skill-list">
+              @for (skill of group.items; track skill.id) {
+                <article class="skill-item">
+                  <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
+                    @if (getSkillLogoSrc(skill)) {
+                      <img
+                        [src]="getSkillLogoSrc(skill)"
+                        [alt]="skill.skillName | translate"
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                        (error)="onSkillLogoError(skill.id)"
+                      />
+                    } @else {
+                      <span>{{ getSkillMonogram(skill) }}</span>
+                    }
+                  </div>
 
-                <span class="skill-name">{{ skill.skillName | translate }}</span>
-              </article>
-            }
-          </div>
-        </section>
-      }
-    </div>
+                  <span class="skill-name">{{ skill.skillName | translate }}</span>
+                </article>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    } @else if (normalizedSectionType === 'grid') {
+      <div class="skills-grid-alt">
+        @for (skill of allSkills; track skill.id) {
+          <article class="skill-tile">
+            <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
+              @if (getSkillLogoSrc(skill)) {
+                <img
+                  [src]="getSkillLogoSrc(skill)"
+                  [alt]="skill.skillName | translate"
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                  (error)="onSkillLogoError(skill.id)"
+                />
+              } @else {
+                <span>{{ getSkillMonogram(skill) }}</span>
+              }
+            </div>
+            <div class="skill-tile-content">
+              <span class="skill-name">{{ skill.skillName | translate }}</span>
+              <span class="skill-category">{{ (skill.category || 'General') | translate }}</span>
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (normalizedSectionType === 'timeline') {
+      <div class="skills-timeline">
+        @for (group of skillGroups; track group.category; let i = $index) {
+          <section class="timeline-group" [style.--item-index]="i">
+            <div class="timeline-rail" aria-hidden="true">
+              <span class="timeline-dot"></span>
+            </div>
+            <div class="timeline-content">
+              <h3 class="group-title">{{ group.category | translate }}</h3>
+              <div class="skill-list">
+                @for (skill of group.items; track skill.id) {
+                  <article class="skill-item">
+                    <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
+                      @if (getSkillLogoSrc(skill)) {
+                        <img
+                          [src]="getSkillLogoSrc(skill)"
+                          [alt]="skill.skillName | translate"
+                          loading="lazy"
+                          referrerpolicy="no-referrer"
+                          (error)="onSkillLogoError(skill.id)"
+                        />
+                      } @else {
+                        <span>{{ getSkillMonogram(skill) }}</span>
+                      }
+                    </div>
+                    <span class="skill-name">{{ skill.skillName | translate }}</span>
+                  </article>
+                }
+              </div>
+            </div>
+          </section>
+        }
+      </div>
+    } @else {
+      <div class="skills-marquee">
+        <div class="skills-marquee-track">
+          @for (skill of movingSkills; track $index) {
+            <article class="skill-item marquee-item">
+              <div class="skill-logo" [attr.aria-label]="skill.skillName | translate">
+                @if (getSkillLogoSrc(skill)) {
+                  <img
+                    [src]="getSkillLogoSrc(skill)"
+                    [alt]="skill.skillName | translate"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                    (error)="onSkillLogoError(skill.id)"
+                  />
+                } @else {
+                  <span>{{ getSkillMonogram(skill) }}</span>
+                }
+              </div>
+              <span class="skill-name">{{ skill.skillName | translate }}</span>
+            </article>
+          }
+        </div>
+      </div>
+    }
   }
 </section>

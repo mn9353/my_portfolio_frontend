@@ -45,6 +45,9 @@ export class ContactCtaSectionComponent implements OnChanges, OnDestroy {
   get primaryCtaHref(): string {
     const direct = (this.buttonUrl || '').trim();
     if (direct) {
+      if (this.looksLikeEmail(direct) && !direct.toLowerCase().startsWith('mailto:')) {
+        return `mailto:${direct}`;
+      }
       return direct;
     }
 
@@ -54,6 +57,11 @@ export class ContactCtaSectionComponent implements OnChanges, OnDestroy {
     }
 
     return '#';
+  }
+
+  get emailHref(): string {
+    const email = (this.email || '').trim();
+    return email ? `mailto:${email}` : '#';
   }
 
   get normalizedAvailability(): string {
@@ -168,6 +176,31 @@ export class ContactCtaSectionComponent implements OnChanges, OnDestroy {
     this.copyToClipboard(value, 'phone');
   }
 
+  onPrimaryCtaClick(event: MouseEvent): void {
+    const ctaEmail = this.extractEmailFromValue((this.buttonUrl || '').trim()) || (this.email || '').trim();
+    if (!ctaEmail) {
+      return;
+    }
+
+    const href = this.primaryCtaHref;
+    if (!href.toLowerCase().startsWith('mailto:')) {
+      return;
+    }
+
+    event.preventDefault();
+    this.openEmailWithFallback(ctaEmail);
+  }
+
+  onEmailClick(event: MouseEvent): void {
+    const email = (this.email || '').trim();
+    if (!email) {
+      return;
+    }
+
+    event.preventDefault();
+    this.openEmailWithFallback(email);
+  }
+
   private fetchSocialLinks(portfolioId: number): void {
     this.isLoading = true;
 
@@ -238,5 +271,87 @@ export class ContactCtaSectionComponent implements OnChanges, OnDestroy {
     }
 
     return rawValue;
+  }
+
+  private looksLikeEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  private extractEmailFromValue(value: string): string | null {
+    const raw = (value || '').trim();
+    if (!raw) {
+      return null;
+    }
+
+    if (raw.toLowerCase().startsWith('mailto:')) {
+      const mailtoBody = raw.slice('mailto:'.length);
+      const emailPart = mailtoBody.split('?')[0]?.trim() || '';
+      return emailPart || null;
+    }
+
+    if (this.looksLikeEmail(raw)) {
+      return raw;
+    }
+
+    return null;
+  }
+
+  private openEmailWithFallback(email: string): void {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    const safeEmail = email.trim();
+    if (!safeEmail) {
+      return;
+    }
+
+    const mailtoUrl = `mailto:${safeEmail}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(safeEmail)}`;
+
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+    let wasHandled = false;
+
+    const cleanup = (): void => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('pagehide', onPageHide);
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+    };
+
+    const markHandled = (): void => {
+      wasHandled = true;
+      cleanup();
+    };
+
+    const onVisibilityChange = (): void => {
+      if (document.visibilityState === 'hidden') {
+        markHandled();
+      }
+    };
+
+    const onBlur = (): void => {
+      markHandled();
+    };
+
+    const onPageHide = (): void => {
+      markHandled();
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('pagehide', onPageHide);
+
+    window.location.href = mailtoUrl;
+
+    fallbackTimer = setTimeout(() => {
+      cleanup();
+      if (!wasHandled) {
+        window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+      }
+    }, 900);
   }
 }

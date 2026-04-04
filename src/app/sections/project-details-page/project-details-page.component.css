@@ -1,0 +1,259 @@
+.project-details-page {
+  width: min(96vw, 94rem);
+  margin: 6.8rem auto 2.2rem;
+}
+
+.back-action {
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-color) 84%, transparent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+}
+
+.details-feedback {
+  margin: 1rem 0 0;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.details-header {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.details-header h1 {
+  margin: 0;
+  font-family: 'Gelasio', 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 4.3vw, 3.4rem);
+  line-height: 1.05;
+  color: var(--text-color);
+}
+
+.details-header p {
+  margin: 0.55rem auto 0;
+  max-width: min(92%, 52rem);
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: clamp(0.98rem, 1.25vw, 1.16rem);
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--text-color) 75%, transparent);
+}
+
+.hero-media {
+  margin: 1rem 0 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
+  background: color-mix(in srgb, var(--panel-bg) 78%, transparent);
+}
+
+.hero-media img {
+  width: 100%;
+  height: clamp(15rem, 38vw, 31rem);
+  object-fit: cover;
+  display: block;
+}
+
+.hero-media figcaption {
+  padding: 0.5rem 0.7rem;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.84rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.meta-chips {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  padding: 0.3rem 0.7rem;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--text-color) 82%, transparent);
+}
+
+.status-chip {
+  border-color: rgba(92, 195, 138, 0.45);
+  background: rgba(44, 133, 84, 0.18);
+}
+
+.type-chip {
+  border-color: rgba(120, 152, 217, 0.45);
+  background: rgba(58, 86, 150, 0.18);
+}
+
+.role-chip {
+  border-color: rgba(168, 154, 224, 0.4);
+  background: rgba(107, 90, 169, 0.18);
+}
+
+.duration-chip {
+  border-color: rgba(224, 191, 132, 0.4);
+  background: rgba(142, 114, 62, 0.18);
+}
+
+.meta-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+}
+
+.meta-card,
+.point-group {
+  border-radius: 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
+  background: color-mix(in srgb, var(--panel-bg) 74%, transparent);
+  padding: 0.82rem 0.9rem;
+}
+
+.meta-card h3,
+.point-group h3 {
+  margin: 0;
+  font-family: 'Gelasio', 'Cormorant Garamond', serif;
+  font-size: 1.06rem;
+}
+
+.meta-card p,
+.point-group p,
+.point-group li {
+  margin: 0.38rem 0 0;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--text-color) 80%, transparent);
+}
+
+.tech-row {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+  padding: 0.25rem 0.62rem;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.75rem;
+}
+
+.tech-chip img {
+  width: 0.95rem;
+  height: 0.95rem;
+  object-fit: contain;
+}
+
+.tech-fallback {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--text-color) 16%, transparent);
+  color: color-mix(in srgb, var(--text-color) 90%, transparent);
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.points-section {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+}
+
+.point-group ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.26rem;
+}
+
+.media-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+}
+
+.media-card {
+  margin: 0;
+  border-radius: 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--panel-bg) 78%, transparent);
+}
+
+.media-card img {
+  width: 100%;
+  height: clamp(14rem, 24vw, 18rem);
+  object-fit: cover;
+  display: block;
+}
+
+.media-card figcaption {
+  padding: 0.45rem 0.6rem;
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.83rem;
+}
+
+.links-row {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.links-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  padding: 0.42rem 0.8rem;
+  color: color-mix(in srgb, var(--text-color) 86%, transparent);
+  font-family: 'Questrial', 'Segoe UI', sans-serif;
+  font-size: 0.84rem;
+}
+
+.links-row a svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.links-row a .material-symbols-rounded {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+@media (max-width: 780px) {
+  .project-details-page {
+    margin-top: 6.1rem;
+  }
+
+  .meta-grid,
+  .points-section,
+  .media-grid {
+    grid-template-columns: 1fr;
+  }
+}

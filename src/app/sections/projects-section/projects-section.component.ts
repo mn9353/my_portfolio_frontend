@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { Project, TechnologyItem } from '../../interfaces';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -13,6 +13,8 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 export class ProjectsSectionComponent implements OnChanges {
   @Input() heading = '';
   @Input() portfolioId!: number;
+  @Input() sectionType: string | null = null;
+  @Output() viewDetailsRequested = new EventEmitter<Project>();
 
   @ViewChild('carouselViewport') private carouselViewport?: ElementRef<HTMLElement>;
 
@@ -33,6 +35,21 @@ export class ProjectsSectionComponent implements OnChanges {
     }
   }
 
+  get normalizedSectionType(): 'cards' | 'grid' | 'timeline' | 'moving cards' {
+    const raw = (this.sectionType || '').trim().toLowerCase();
+    if (raw === 'grid' || raw === 'timeline' || raw === 'moving cards' || raw === 'cards') {
+      return raw;
+    }
+    return 'cards';
+  }
+
+  get movingProjects(): Project[] {
+    if (this.projects.length === 0) {
+      return [];
+    }
+    return [...this.projects, ...this.projects];
+  }
+
   previous(): void {
     this.scrollByCards(-1);
   }
@@ -43,6 +60,10 @@ export class ProjectsSectionComponent implements OnChanges {
 
   onViewportScroll(): void {
     this.updateNavState();
+  }
+
+  onViewDetails(project: Project): void {
+    this.viewDetailsRequested.emit(project);
   }
 
   @HostListener('window:resize')

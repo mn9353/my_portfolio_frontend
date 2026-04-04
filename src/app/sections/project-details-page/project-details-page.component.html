@@ -1,0 +1,163 @@
+<section class="project-details-page">
+  <button type="button" class="back-action" (click)="onBack()">
+    <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+    <span>{{ 'Back to projects' | translate }}</span>
+  </button>
+
+  @if (isLoading) {
+    <p class="details-feedback">{{ 'Loading project details...' | translate }}</p>
+  } @else if (error) {
+    <p class="details-feedback">{{ error | translate }}</p>
+  } @else if (project) {
+    <header class="details-header">
+      <h1>{{ project.title | translate }}</h1>
+      @if (project.shortDescription) {
+        <p>{{ project.shortDescription | translate }}</p>
+      }
+    </header>
+
+    @if (heroMedia && heroMedia.mediaType.toLowerCase() === 'image' && getMediaSrc(heroMedia)) {
+      <figure class="hero-media">
+        <img
+          [src]="getMediaSrc(heroMedia)"
+          [alt]="(heroMedia.caption || project.title) | translate"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          (error)="onMediaError(heroMedia)"
+        />
+      </figure>
+    }
+
+    <div class="meta-chips">
+      @if (project.status) {
+        <span class="meta-chip status-chip">{{ project.status | translate }}</span>
+      }
+      @if (project.projectType) {
+        <span class="meta-chip type-chip">{{ project.projectType | translate }}</span>
+      }
+      @if (details?.details?.role) {
+        <span class="meta-chip role-chip">{{ details?.details?.role | translate }}</span>
+      }
+      @if (durationText) {
+        <span class="meta-chip duration-chip">{{ durationText | translate }}</span>
+      }
+    </div>
+
+    @if (details?.details?.problemStatement || details?.details?.solutionApproach || details?.details?.architecture || details?.details?.outcomeSummary) {
+      <section class="meta-grid">
+        @if (details?.details?.problemStatement) {
+          <article class="meta-card">
+            <h3>{{ 'Problem' | translate }}</h3>
+            <p>{{ details?.details?.problemStatement | translate }}</p>
+          </article>
+        }
+
+        @if (details?.details?.solutionApproach) {
+          <article class="meta-card">
+            <h3>{{ 'Solution' | translate }}</h3>
+            <p>{{ details?.details?.solutionApproach | translate }}</p>
+          </article>
+        }
+
+        @if (details?.details?.architecture) {
+          <article class="meta-card">
+            <h3>{{ 'Architecture' | translate }}</h3>
+            <p>{{ details?.details?.architecture | translate }}</p>
+          </article>
+        }
+
+        @if (details?.details?.outcomeSummary) {
+          <article class="meta-card">
+            <h3>{{ 'Outcome' | translate }}</h3>
+            <p>{{ details?.details?.outcomeSummary | translate }}</p>
+          </article>
+        }
+      </section>
+    }
+
+    @if (normalizedTechnologies.length > 0) {
+      <section class="tech-row">
+        @for (tech of normalizedTechnologies; track tech.technology) {
+          <span class="tech-chip">
+            @if (getTechLogoSrc(tech)) {
+              <img
+                [src]="getTechLogoSrc(tech)"
+                [alt]="tech.technology | translate"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                (error)="onTechLogoError(tech)"
+              />
+            } @else {
+              <span class="tech-fallback">{{ getTechShortForm(tech) }}</span>
+            }
+            <span>{{ tech.technology | translate }}</span>
+          </span>
+        }
+      </section>
+    }
+
+    @if (orderedPointKeys.length > 0) {
+      <section class="points-section">
+        @for (key of orderedPointKeys; track key) {
+          <article class="point-group">
+            <h3>{{ key | translate }}</h3>
+            <ul>
+              @for (item of groupedPoints[key]; track item) {
+                <li>{{ item | translate }}</li>
+              }
+            </ul>
+          </article>
+        }
+      </section>
+    } @else if (project.detailedDescription) {
+      <section class="points-section">
+        <article class="point-group">
+          <h3>{{ 'Details' | translate }}</h3>
+          <p>{{ project.detailedDescription | translate }}</p>
+        </article>
+      </section>
+    }
+
+    @if (galleryMedia.length > 0) {
+      <section class="media-grid">
+        @for (item of galleryMedia; track item.id) {
+          <figure class="media-card">
+            @if (item.mediaType.toLowerCase() === 'image' && getMediaSrc(item)) {
+              <img
+                [src]="getMediaSrc(item)"
+                [alt]="(item.caption || project.title) | translate"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                (error)="onMediaError(item)"
+              />
+            } @else {
+              <a [href]="item.mediaUrl" target="_blank" rel="noopener noreferrer">
+                {{ 'Open media' | translate }}
+              </a>
+            }
+            @if (item.caption) {
+              <figcaption>{{ item.caption | translate }}</figcaption>
+            }
+          </figure>
+        }
+      </section>
+    }
+
+    @if (visibleLinks.length > 0) {
+      <section class="links-row">
+        @for (item of visibleLinks; track item.id) {
+          <a [href]="item.url" target="_blank" rel="noopener noreferrer">
+            @if ((item.label || '').toLowerCase().includes('github')) {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.35-3.88-1.35-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.78 1.2 1.78 1.2 1.03 1.78 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.3 1.2-3.12-.12-.3-.52-1.5.12-3.12 0 0 .98-.31 3.2 1.19a11.02 11.02 0 0 1 5.82 0c2.22-1.5 3.2-1.2 3.2-1.2.64 1.63.24 2.83.12 3.13.75.82 1.2 1.86 1.2 3.12 0 4.43-2.7 5.41-5.27 5.7.42.37.78 1.08.78 2.19 0 1.58-.01 2.85-.01 3.24 0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+              </svg>
+            } @else {
+              <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+            }
+            <span>{{ item.label | translate }}</span>
+          </a>
+        }
+      </section>
+    }
+  }
+</section>
