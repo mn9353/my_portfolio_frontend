@@ -1,0 +1,34 @@
+﻿@if (hasAbout) {
+  <section class="portfolio-section about-section">
+    <div class="section-heading-wrap">
+      <span class="section-heading-line" aria-hidden="true"></span>
+      <h2 class="section-heading">{{ heading | translate }}</h2>
+      <span class="section-heading-line" aria-hidden="true"></span>
+    </div>
+
+    @if (sectionDescription) {
+      <p class="section-description">{{ sectionDescription | translate }}</p>
+    }
+
+    <article class="about-layout" [class.without-image]="!profileImageUrl">
+      @if (profileImageUrl) {
+        <figure class="about-photo">
+          <img [src]="profileImageUrl" [alt]="fullName || heading" loading="lazy" referrerpolicy="no-referrer" />
+        </figure>
+      }
+
+      <div class="about-copy">
+        <p class="about-lead">
+          <span class="about-greeting">{{ greetingLead | translate }}</span>
+          @if (aboutFirstParagraph) {
+            <span>{{ ' ' + aboutFirstParagraph | translate }}</span>
+          }
+        </p>
+
+        @for (paragraph of aboutRemainingParagraphs; track paragraph) {
+          <p>{{ paragraph | translate }}</p>
+        }
+      </div>
+    </article>
+  </section>
+}

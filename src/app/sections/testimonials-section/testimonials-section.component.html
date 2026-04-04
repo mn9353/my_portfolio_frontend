@@ -1,0 +1,73 @@
+﻿<section class="portfolio-section testimonials-section">
+  @if (isLoading) {
+    <div class="testimonials-feedback">{{ 'Loading testimonials...' | translate }}</div>
+  } @else if (loadError) {
+    <div class="testimonials-feedback">{{ loadError | translate }}</div>
+  } @else if (hasTestimonials) {
+    <div class="section-heading-wrap">
+      <span class="section-heading-line" aria-hidden="true"></span>
+      <h2 class="section-heading">{{ heading | translate }}</h2>
+      <span class="section-heading-line" aria-hidden="true"></span>
+    </div>
+
+    @if (description) {
+      <p class="section-description">{{ description | translate }}</p>
+    }
+
+    @if (layout === 'grid') {
+      <div class="testimonials-grid">
+        @for (item of testimonials; track item.id) {
+          <ng-container [ngTemplateOutlet]="testimonialCard" [ngTemplateOutletContext]="{ $implicit: item, showRating: false, timeline: false }"></ng-container>
+        }
+      </div>
+    } @else if (layout === 'timeline') {
+      <div class="testimonials-timeline">
+        @for (item of testimonials; track item.id) {
+          <ng-container [ngTemplateOutlet]="testimonialCard" [ngTemplateOutletContext]="{ $implicit: item, showRating: false, timeline: true }"></ng-container>
+        }
+      </div>
+    } @else if (layout === 'moving cards') {
+      <div class="moving-wrap">
+        <div class="moving-track">
+          @for (item of movingTestimonials; track $index) {
+            <ng-container [ngTemplateOutlet]="testimonialCard" [ngTemplateOutletContext]="{ $implicit: item, showRating: false, timeline: false, moving: true }"></ng-container>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="testimonials-cards">
+        @for (item of testimonials; track item.id) {
+          <ng-container [ngTemplateOutlet]="testimonialCard" [ngTemplateOutletContext]="{ $implicit: item, showRating: true, timeline: false }"></ng-container>
+        }
+      </div>
+    }
+  }
+</section>
+
+<ng-template #testimonialCard let-item let-showRating="showRating" let-timeline="timeline" let-moving="moving">
+  <article class="testimonial-card" [class.timeline-item]="timeline" [class.moving-card]="moving">
+    <div class="testimonial-head">
+      <div class="testimonial-avatar">
+        @if (getProfileImageSrc(item)) {
+          <img [src]="getProfileImageSrc(item)" [alt]="item.clientName | translate" loading="lazy" referrerpolicy="no-referrer" (error)="onProfileImageError(item.id)"/>
+        } @else {
+          <span>{{ getInitials(item) }}</span>
+        }
+      </div>
+      <div>
+        <h3>{{ item.clientName | translate }}</h3>
+        <p>{{ ((item.designation || '') + (item.companyName ? ' @ ' + item.companyName : '')) | translate }}</p>
+      </div>
+    </div>
+
+    @if (showRating && item.rating !== null) {
+      <div class="rating-row" aria-label="rating">
+        @for (star of stars; track star) {
+          <span [class.filled]="star <= item.rating">★</span>
+        }
+      </div>
+    }
+
+    <p class="testimonial-text">{{ item.testimonialText | translate }}</p>
+  </article>
+</ng-template>

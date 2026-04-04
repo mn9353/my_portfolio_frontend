@@ -1,12 +1,15 @@
-export interface PortfolioBasic {
+﻿export interface PortfolioBasic {
   id: number;
   fullName: string;
   shortForm: string | null;
   role: string | null;
   openToWork: boolean;
+  openToWorkDescription: string | null;
   headline: string | null;
   subheadline: string | null;
   aboutMe: string | null;
+  totalExperience: number | null;
+  currentCompany: string | null;
   email: string | null;
   phoneNumber: string | null;
   location: string | null;
@@ -16,3 +19,4 @@ export interface PortfolioBasic {
   profileImageUrl: string | null;
   themeName: string | null;
 }
+

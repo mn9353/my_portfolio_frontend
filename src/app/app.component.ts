@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, PLATFORM_ID, Renderer2, inject } from '@angular/core';
+﻿import { Component, ElementRef, HostListener, OnDestroy, OnInit, PLATFORM_ID, Renderer2, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ApiService } from './services/api.service';
 import { PopupService } from './services/popup.service';
@@ -8,9 +8,12 @@ import { PopupComponent } from './shared/components/popup/popup.component';
 import { GlobalLoaderComponent } from './shared/components/global-loader/global-loader.component';
 import { TranslatePipe } from './pipes/translate.pipe';
 import { Language, PortfolioBasic, Section, TranslationKeyValue } from './interfaces';
+import { AboutSectionComponent } from './sections/about-section/about-section.component';
 import { ExperienceSectionComponent } from './sections/experience-section/experience-section.component';
 import { ProjectsSectionComponent } from './sections/projects-section/projects-section.component';
 import { SkillsMinimalSectionComponent } from './sections/skills-minimal-section/skills-minimal-section.component';
+import { ContactCtaSectionComponent } from './sections/contact-cta-section/contact-cta-section.component';
+import { TestimonialsSectionComponent } from './sections/testimonials-section/testimonials-section.component';
 import {
   BASIC_DETAILS_FALLBACK,
   DEFAULT_PORTFOLIO_ID,
@@ -22,11 +25,15 @@ import {
 } from './constants/constant';
 
 type ThemeMode = 'light' | 'dark';
-type RenderableSectionType = 'skills' | 'projects' | 'experience';
+type RenderableSectionType = 'about' | 'skills' | 'projects' | 'experience' | 'testimonials' | 'contact';
 
 interface RenderableSection {
   type: RenderableSectionType;
   heading: string;
+  description: string;
+  buttonText: string;
+  buttonUrl: string;
+  sectionType: string | null;
   trackKey: string;
 }
 
@@ -37,9 +44,12 @@ interface RenderableSection {
     PopupComponent,
     GlobalLoaderComponent,
     TranslatePipe,
+    AboutSectionComponent,
     SkillsMinimalSectionComponent,
     ProjectsSectionComponent,
-    ExperienceSectionComponent
+    ExperienceSectionComponent,
+    ContactCtaSectionComponent,
+    TestimonialsSectionComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -54,9 +64,12 @@ export class AppComponent implements OnInit, OnDestroy {
     shortForm: '',
     role: '',
     openToWork: false,
+    openToWorkDescription: '',
     headline: '',
     subheadline: '',
     aboutMe: '',
+    totalExperience: null,
+    currentCompany: '',
     email: '',
     phoneNumber: '',
     location: '',
@@ -236,12 +249,26 @@ export class AppComponent implements OnInit, OnDestroy {
           ? 'My Projects'
           : type === 'experience'
             ? 'Experience'
+            : type === 'about'
+              ? 'About Me'
+              : type === 'testimonials'
+                ? 'Testimonials'
+                : type === 'contact'
+                  ? "Let's Connect"
             : 'Skills & Tools';
         const heading = (section.subtitle || '').trim() || fallbackHeading;
+        const description = (section.description || '').trim();
+        const buttonText = (section.buttonText || '').trim();
+        const buttonUrl = (section.buttonUrl || '').trim();
+        const sectionType = section.sectionType;
 
         return {
           type,
           heading,
+          description,
+          buttonText,
+          buttonUrl,
+          sectionType,
           trackKey: `${section.sectionKey}-${section.displayOrder}`
         } satisfies RenderableSection;
       })
@@ -252,9 +279,12 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     return [
-      { type: 'skills', heading: 'Skills & Tools', trackKey: 'skills-fallback' },
-      { type: 'projects', heading: 'My Projects', trackKey: 'projects-fallback' },
-      { type: 'experience', heading: 'Experience', trackKey: 'experience-fallback' }
+      { type: 'about', heading: 'About Me', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'about-fallback' },
+      { type: 'skills', heading: 'Skills & Tools', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'skills-fallback' },
+      { type: 'projects', heading: 'My Projects', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'projects-fallback' },
+      { type: 'experience', heading: 'Experience', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'experience-fallback' },
+      { type: 'testimonials', heading: 'Testimonials', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'testimonials-fallback' },
+      { type: 'contact', heading: 'Let\'s Connect', description: '', buttonText: 'Get in touch', buttonUrl: '', sectionType: null, trackKey: 'contact-fallback' }
     ];
   }
 
@@ -296,6 +326,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   get compactSuffixLetter(): string {
     return this.derivedShortForm.slice(1, 2);
+  }
+
+  get openToWorkText(): string {
+    return (this.basicDetails.openToWorkDescription || '').trim();
   }
 
   get roleDisplayText(): string {
@@ -631,6 +665,18 @@ export class AppComponent implements OnInit, OnDestroy {
       return 'experience';
     }
 
+    if (normalized.includes('about')) {
+      return 'about';
+    }
+
+    if (normalized.includes('testimonial') || (normalized.includes('social') && normalized.includes('proof'))) {
+      return 'testimonials';
+    }
+
+    if (normalized.includes('contact') || normalized.includes('cta')) {
+      return 'contact';
+    }
+
     return null;
   }
 
@@ -728,3 +774,5 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 }
+
+

@@ -1,4 +1,4 @@
-<app-popup></app-popup>
+﻿<app-popup></app-popup>
 <app-global-loader></app-global-loader>
 
 <div
@@ -110,10 +110,10 @@
 </div>
 
 <main class="hero-content">
-  @if (basicDetails.openToWork) {
+  @if (basicDetails.openToWork && openToWorkText) {
     <div class="open-to-work-island">
       <span class="open-dot" aria-hidden="true"></span>
-      <span class="open-text">{{ 'Actively seeking full time roles' | translate }}</span>
+      <span class="open-text">{{ openToWorkText | translate }}</span>
     </div>
   }
 
@@ -149,7 +149,20 @@
 
 @if (!isBasicLoading && !isSectionsLoading) {
   @for (section of renderableSections; track section.trackKey) {
-    @if (section.type === 'skills') {
+    @if (section.type === 'about') {
+      <app-about-section
+        [heading]="section.heading"
+        [sectionDescription]="section.description"
+        [fullName]="basicDetails.fullName"
+        [aboutText]="basicDetails.aboutMe || ''"
+        [profileImageUrl]="profileImageSrc"
+        [role]="basicDetails.role"
+        [location]="basicDetails.location"
+        [currentCompany]="basicDetails.currentCompany"
+        [totalExperience]="basicDetails.totalExperience"
+        [openToWork]="basicDetails.openToWork"
+      ></app-about-section>
+    } @else if (section.type === 'skills') {
       <app-skills-minimal-section
         [heading]="section.heading"
         [portfolioId]="portfolioId"
@@ -164,6 +177,27 @@
         [heading]="section.heading"
         [portfolioId]="portfolioId"
       ></app-experience-section>
+    } @else if (section.type === 'testimonials') {
+      <app-testimonials-section
+        [heading]="section.heading"
+        [description]="section.description"
+        [sectionType]="section.sectionType"
+        [portfolioId]="portfolioId"
+      ></app-testimonials-section>
+    } @else if (section.type === 'contact') {
+      <app-contact-cta-section
+        [heading]="section.heading"
+        [description]="section.description"
+        [buttonText]="section.buttonText"
+        [buttonUrl]="section.buttonUrl"
+        [availabilityText]="openToWorkText"
+        [email]="basicDetails.email"
+        [phoneNumber]="basicDetails.phoneNumber"
+        [linkedinUrl]="basicDetails.linkedinUrl"
+        [githubUrl]="basicDetails.githubUrl"
+        [portfolioId]="portfolioId"
+      ></app-contact-cta-section>
     }
   }
 }
+

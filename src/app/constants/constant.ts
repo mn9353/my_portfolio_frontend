@@ -1,4 +1,4 @@
-import { PortfolioBasic } from '../interfaces';
+﻿import { PortfolioBasic } from '../interfaces';
 
 export const DEFAULT_PORTFOLIO_ID = 1;
 export const THEME_STORAGE_KEY = 'portfolio_theme_mode';
@@ -22,9 +22,12 @@ export const BASIC_DETAILS_FALLBACK: PortfolioBasic = {
   shortForm: 'MN',
   role: 'Full Stack Engineer',
   openToWork: false,
+  openToWorkDescription: 'Actively seeking full time roles',
   headline: 'I build scalable full-stack products with clean architecture and real business impact.',
   subheadline: 'Angular - .NET - C# - MongoDB - PostgreSQL',
   aboutMe: 'Full stack developer with hands-on experience building enterprise applications, APIs, dashboards, and scalable backend systems. Passionate about clean architecture, performance, and product-driven engineering.',
+  totalExperience: 3.5,
+  currentCompany: 'Acumens Technologies',
   email: 'manoj@example.com',
   phoneNumber: '+91-9353780784',
   location: 'Bengaluru, Karnataka, India',
@@ -34,3 +37,4 @@ export const BASIC_DETAILS_FALLBACK: PortfolioBasic = {
   profileImageUrl: 'https://drive.google.com/file/d/1z9tIJxQvaejv-x7XTUmyvb7RTtl2LI7F/view?usp=drivesdk',
   themeName: 'dark'
 };
+
