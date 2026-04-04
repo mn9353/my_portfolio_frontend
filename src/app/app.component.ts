@@ -31,11 +31,13 @@ type RenderableSectionType = 'about' | 'skills' | 'projects' | 'experience' | 't
 interface RenderableSection {
   type: RenderableSectionType;
   heading: string;
+  menuLabel: string;
   description: string;
   buttonText: string;
   buttonUrl: string;
   sectionType: string | null;
   trackKey: string;
+  anchorId: string;
 }
 
 @Component({
@@ -242,14 +244,44 @@ export class AppComponent implements OnInit, OnDestroy {
 
   selectSection(event?: MouseEvent): void {
     event?.stopPropagation();
+  }
+
+  onSectionMenuSelect(anchorId: string, event?: MouseEvent): void {
+    event?.stopPropagation();
     this.isMenuOpen = false;
+
     if (this.isProjectDetailsRoute) {
       this.goToHomeFromDetails();
+      this.scrollToSectionAnchorWhenReady(anchorId);
+      return;
+    }
+
+    this.scrollToSectionAnchorWhenReady(anchorId);
+  }
+
+  onProfileBubbleClick(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.isMenuOpen = false;
+    this.isLanguageMenuOpen = false;
+
+    if (this.isProjectDetailsRoute) {
+      this.goToHomeFromDetails();
+      if (isPlatformBrowser(this.platformId)) {
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
+      }
+      return;
+    }
+
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
-  get sectionMenuItems(): string[] {
-    return this.sections.map(section => section.title || section.sectionKey);
+  get sectionMenuItems(): Array<{ label: string; anchorId: string }> {
+    return this.renderableSections.map(section => ({
+      label: section.menuLabel,
+      anchorId: section.anchorId
+    }));
   }
 
   get renderableSections(): RenderableSection[] {
@@ -272,6 +304,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   ? "Let's Connect"
             : 'Skills & Tools';
         const heading = (section.subtitle || '').trim() || fallbackHeading;
+        const menuLabel = (section.title || '').trim() || heading;
         const description = (section.description || '').trim();
         const buttonText = (section.buttonText || '').trim();
         const buttonUrl = (section.buttonUrl || '').trim();
@@ -280,11 +313,13 @@ export class AppComponent implements OnInit, OnDestroy {
         return {
           type,
           heading,
+          menuLabel,
           description,
           buttonText,
           buttonUrl,
           sectionType,
-          trackKey: `${section.sectionKey}-${section.displayOrder}`
+          trackKey: `${section.sectionKey}-${section.displayOrder}`,
+          anchorId: `section-${type}-${section.displayOrder}`
         } satisfies RenderableSection;
       })
       .filter((section): section is RenderableSection => section !== null);
@@ -294,12 +329,12 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     return [
-      { type: 'about', heading: 'About Me', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'about-fallback' },
-      { type: 'skills', heading: 'Skills & Tools', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'skills-fallback' },
-      { type: 'projects', heading: 'My Projects', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'projects-fallback' },
-      { type: 'experience', heading: 'Experience', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'experience-fallback' },
-      { type: 'testimonials', heading: 'Testimonials', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'testimonials-fallback' },
-      { type: 'contact', heading: 'Let\'s Connect', description: '', buttonText: 'Get in touch', buttonUrl: '', sectionType: null, trackKey: 'contact-fallback' }
+      { type: 'about', heading: 'About Me', menuLabel: 'About Me', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'about-fallback', anchorId: 'section-about-fallback' },
+      { type: 'skills', heading: 'Skills & Tools', menuLabel: 'Skills & Tools', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'skills-fallback', anchorId: 'section-skills-fallback' },
+      { type: 'projects', heading: 'My Projects', menuLabel: 'My Projects', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'projects-fallback', anchorId: 'section-projects-fallback' },
+      { type: 'experience', heading: 'Experience', menuLabel: 'Experience', description: '', buttonText: '', buttonUrl: '', sectionType: null, trackKey: 'experience-fallback', anchorId: 'section-experience-fallback' },
+      { type: 'testimonials', heading: 'Testimonials', menuLabel: 'Testimonials', description: '', buttonText: '', buttonUrl: '', sectionType: 'cards', trackKey: 'testimonials-fallback', anchorId: 'section-testimonials-fallback' },
+      { type: 'contact', heading: 'Let\'s Connect', menuLabel: 'Let\'s Connect', description: '', buttonText: 'Get in touch', buttonUrl: '', sectionType: null, trackKey: 'contact-fallback', anchorId: 'section-contact-fallback' }
     ];
   }
 
@@ -928,6 +963,41 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
     window.history.pushState({}, '', path);
+  }
+
+  private scrollToSectionAnchor(anchorId: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const target = document.getElementById(anchorId);
+    if (!target) {
+      return;
+    }
+
+    const offsetTop = target.getBoundingClientRect().top + window.scrollY - 96;
+    window.scrollTo({
+      top: Math.max(0, offsetTop),
+      behavior: 'smooth'
+    });
+  }
+
+  private scrollToSectionAnchorWhenReady(anchorId: string, retries = 20): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const target = document.getElementById(anchorId);
+    if (target) {
+      this.scrollToSectionAnchor(anchorId);
+      return;
+    }
+
+    if (retries <= 0) {
+      return;
+    }
+
+    setTimeout(() => this.scrollToSectionAnchorWhenReady(anchorId, retries - 1), 80);
   }
 }
 

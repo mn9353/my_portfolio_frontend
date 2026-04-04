@@ -1,4 +1,4 @@
-<app-popup></app-popup>
+ï»¿<app-popup></app-popup>
 <app-global-loader></app-global-loader>
 
 <div
@@ -7,6 +7,7 @@
   [class.is-fading-out]="isProfileFadingOut"
   (mouseenter)="onProfileHoverEnter()"
   (mouseleave)="onProfileHoverLeave()"
+  (click)="onProfileBubbleClick($event)"
 >
   <div class="avatar">
     @if (profileImageSrc) {
@@ -91,14 +92,14 @@
     <div class="menu-panel">
       @if (sectionMenuItems.length > 0) {
         <div class="section-list">
-          @for (item of sectionMenuItems; track item; let i = $index) {
+          @for (item of sectionMenuItems; track item.anchorId; let i = $index) {
             <button
               type="button"
               class="section-item"
               [style.--item-index]="i"
-              (click)="selectSection($event)"
+              (click)="onSectionMenuSelect(item.anchorId, $event)"
             >
-              {{ item | translate }}
+              {{ item.label | translate }}
             </button>
           }
         </div>
@@ -158,6 +159,7 @@
 
   @if (!isBasicLoading && !isSectionsLoading) {
     @for (section of renderableSections; track section.trackKey) {
+      <section [id]="section.anchorId">
       @if (section.type === 'about') {
         <app-about-section
           [heading]="section.heading"
@@ -210,10 +212,23 @@
           [portfolioId]="portfolioId"
         ></app-contact-cta-section>
       }
+      </section>
     }
   }
 
   <footer class="portfolio-footer">
-    <p>© {{ footerYear }} {{ footerOwnerName | translate }}</p>
+    <p>
+      <img
+        class="copyright-icon"
+        width="48"
+        height="48"
+        src="https://img.icons8.com/fluency-systems-regular/48/copyright.png"
+        alt="copyright"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      />
+      <span>{{ footerYear }} {{ footerOwnerName | translate }}</span>
+    </p>
   </footer>
 }
+

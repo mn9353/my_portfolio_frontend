@@ -18,12 +18,31 @@
   min-height: 34rem;
   padding: clamp(1.2rem, 2.8vw, 2.6rem);
   color: #f3f5f8;
+  display: block;
+  margin: 1rem;
+}
+
+.cta-content {
+  height: 100%;
+  width: 100%;
   display: grid;
   align-content: center;
   gap: 0.9rem;
   justify-items: center;
   text-align: center;
-  margin: 1rem;
+  transform-origin: top center;
+  will-change: transform, opacity, filter;
+}
+
+@supports (animation-timeline: view()) {
+  .cta-content {
+    animation-name: contactSectionReveal;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 62%;
+  }
 }
 
 .cta-glow {
@@ -257,6 +276,24 @@
   }
 }
 
+@keyframes contactSectionReveal {
+  0% {
+    opacity: 0.03;
+    transform: translateY(-9rem) scale(0.98);
+    filter: blur(1.8px);
+  }
+  45% {
+    opacity: 0.64;
+    transform: translateY(-2.4rem) scale(0.992);
+    filter: blur(0.8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
 @media (max-width: 760px) {
   .portfolio-section {
     width: calc(100vw - 0.5rem);
@@ -291,6 +328,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cta-content {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
   .cta-shell::before,
   .cta-button,
   .cta-arrow,
